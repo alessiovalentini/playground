@@ -1,0 +1,42 @@
+<!DOCTYPE HTML>
+<html manifest="" lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <title>Kio</title>
+    <style type="text/css">
+         /**
+         * Example of an initial loading indicator.
+         * It is recommended to keep this as minimal as possible to provide instant feedback
+         * while other resources are still being loaded for the first time
+         */
+        html, body {
+            height: 100%;
+            background-color: black;
+        }
+
+        #appLoadingIndicator {
+            position: absolute;
+            top: 25%;
+            text-align: center;
+            width: 100%;
+			color: #f1f1f1;
+        }
+		
+		#appLoadingIndicator img {
+			width: 50%;
+		}        
+    </style>
+    <!-- The line below must be kept intact for Sencha Command to build your application -->
+    <script id="microloader" type="text/javascript" src="sdk/microloader/development.js"></script>
+    <script type="text/javascript" src="resources/js/LoadTermsAndConditions.js"></script>
+	<script type="text/javascript" src="resources/js/GetLocation.js"></script>
+</head>
+<body>
+    <!--
+    <div id="appLoadingIndicator">
+		<p>Kick it out</p>
+		<img src="resources/images/kio-logo.jpg"></img>
+    </div>
+    -->
+</body>
+</html>
