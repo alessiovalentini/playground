@@ -4,18 +4,19 @@ Ext.define('Kio.view.News', {
 	
 	config: {
 		title: 'News',
-		iconCls: 'reply',
-		styleHtmlContent: true,
-
-		html: [
-			'This is going to be the news panel'
-		],
+		iconCls: 'arrow_right',
 			  
 		items: [
 			{
 				xtype: 'titlebar',
 				title: 'News',
 				docked: 'top'
+			},
+			{
+				xtype: 'kio_newsList_list',
+				scrollable: true,
+				grouped: true,
+				height: '50em'
 			}
 		]
 	}

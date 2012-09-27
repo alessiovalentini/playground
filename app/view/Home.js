@@ -29,9 +29,11 @@ Ext.define('Kio.view.Home', {
 				id: 'kio_showReport_panel',
 				styleHtmlContent: true,
 				scrollable: false,
-				html: '<h2>Make a report <img style="float: right; margin-top: 0.4em; " width="25em" height="25em;" src="resources/images/arrow.png"/></h2>'+
-				'<p>By reporting an incident of discrimination you will be helping us to kick discrimination out of football</p>'+
-				'<p>It will take less than two minutes to do so</p>',
+				html: [
+					'<h3><b>Make a report <img style="float: right; margin-top: 0.4em; " width="25em" height="25em;" src="resources/images/arrow.png"/></b></h3>'+
+					'<p>By reporting an incident of discrimination you will be helping us to kick discrimination out of football</p>'+
+					'<p>It will take less than two minutes to do so</p>'
+				],
 			    initialize: function() {
 			        this.relayEvents(this.element, ['tap']);
 			    }
@@ -49,8 +51,8 @@ Ext.define('Kio.view.Home', {
 			},
 			{
 				xtype: 'kio_newsList_list',
-				// height: '500px',
-				scrollable: false
+				scrollable: false,
+				grouped: false
 			}
 		]
 	}

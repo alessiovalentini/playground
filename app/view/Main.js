@@ -1,10 +1,23 @@
 Ext.define("Kio.view.Main", {
     extend: 'Ext.tab.Panel',
     xtype: 'kio_main_tabPanel',
+
+    requires: [
+        'Kio.view.Home',
+        'Kio.view.Report',
+        'Kio.view.News',
+        'Kio.view.About',
+        'Kio.view.Setting'
+    ],
 	
     config: {
 
-        tabBarPosition: 'bottom',
+        tabBar: {
+            docked: 'bottom',
+            layout: {
+                pack: 'center'
+            }
+        },
 
         items: [
             {

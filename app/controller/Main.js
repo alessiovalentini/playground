@@ -4,43 +4,70 @@ Ext.define('Kio.controller.Main', {
 	config: {
 		refs: {
 			mainTabPanel: 'kio_main_tabPanel',
-			showReportPanel : 'kio_showReport_panel'
-
+			showReportPanel : 'kio_showReport_panel',
+			newsDetailPanel: 'kio_newsDetail_panel',
+			newsListPanel: 'kio_newsList_list',
+			// newsTabBarButton: 'tabbar button[title=News]'
 		},
 		control: {
-			'kio_newsList_list': {
+			newsListPanel: {
 				select: 'showNewsDetail'
 			},
 			'#kio_showReport_panel': {
 				tap: 'showReport'
 			},
 			'#kio_backHome_button': {
-				tap: 'backHome'
+				tap: 'backHomeFromAnotherPanel'
+			},
+			newsTabBarButton: {
+				tap: 'showNews'
+			},
+			'#kio_cancelSetting_button': {
+				tap: 'backHomeFromTheSameTabPanel'
 			}
 		}
 	},
 	
 	showNewsDetail : function(list, record) {
-		
-		// instanciate the view
-		var newsDetailView = Ext.create('Kio.view.NewsDetail');
+		// If it was created before, just show the panel otherwise it creates it
+		var newsDetailPanel = this.getNewsDetailPanel();
+		if(newsDetailPanel === undefined){
+			// instanciate the view
+			newsDetailPanel = Ext.create('Kio.view.NewsDetail');
+			// add and set as an active view
+			Ext.Viewport.add(newsDetailPanel);
+		}
 		// pass the data to use in the template
-		newsDetailView.setData(record.data);
-		// add and set as an active view
-		Ext.Viewport.add(newsDetailView);
-		Ext.Viewport.setActiveItem(newsDetailView);
+		newsDetailPanel.setData(record.data);
+		// Show the new view
+		newsDetailPanel.show();
+		Ext.Viewport.setActiveItem(newsDetailPanel);
 	},
 	showReport : function() {
 		// Getters and setter are created once you set a variable in refs
 		var mainTab = this.getMainTabPanel();
 		mainTab.setActiveItem(1);
 	},
-	backHome : function() {
-		// instanciate the view
-		var homeView = Ext.create('Kio.view.Main');
-		// add and set as an active view
-		Ext.Viewport.add(homeView);
-		Ext.Viewport.setActiveItem(homeView);
+	backHomeFromTheSameTabPanel: function() {
+		// Getters and setter are created once you set a variable in refs
+		var mainTab = this.getMainTabPanel();
+		mainTab.setActiveItem(0);		
+	},
+	backHomeFromAnotherPanel: function() {
+		// If it was created before, just show the panel otherwise it creates it
+		var mainTab = this.getMainTabPanel();
+		if(mainTab === undefined){
+			// instanciate the view
+			mainTab = Ext.create('Kio.view.Main');
+			// add and set as an active view
+			Ext.Viewport.add(mainTab);
+		}
+		// Deselect items from the news list
+		var newsListPanel = this.getNewsListPanel();
+		if(newsListPanel != undefined){
+			newsListPanel.deselectAll();
+		}
+		Ext.Viewport.setActiveItem(mainTab);
 	}
 	
 });

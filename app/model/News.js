@@ -2,7 +2,7 @@ Ext.define('Kio.model.News', {
 	extend: 'Ext.data.Model',
 	
 	config: {
-		fields: ['title', 'body', 'date', 'newsImageUrl']
+		fields: ['title', 'body', 'date', 'newsImageUrl', 'type']
 	},
 
 	// fullName: function() {

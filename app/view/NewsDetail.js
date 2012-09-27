@@ -22,7 +22,7 @@ Ext.define('Kio.view.NewsDetail', {
 				
 				items: {
 					xtype: 'button',
-					text: 'back',
+					text: 'Back',
 					ui: 'back',
 					id: 'kio_backHome_button'
 				}
