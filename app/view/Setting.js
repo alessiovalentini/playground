@@ -1,3 +1,4 @@
+// Im not sure if the form uses names as id, if so, use the proper naming standard we are using kio_name_type
 Ext.define('Kio.view.Setting', {
 	extend: 'Ext.form.Panel',
 	xtype: 'kio_setting_panel',
@@ -38,10 +39,12 @@ Ext.define('Kio.view.Setting', {
 					'provide you with tailored news about our work and make it easier for you to report incidents of discrimination</p>'
 				]
 			},
-			{				
-	            xtype: 'textfield',
-	            name: 'homeGround',
-    			placeHolder: 'Regular home ground?',
+			{					
+                xtype: 'selectfield',
+				//placeHolder: 'Regular home ground?',
+				store: 'Ground',
+		        valueField: 'groundName',
+		        displayField: 'groundName',
 				styleHtmlContent: true
 			},
 			{				
@@ -71,7 +74,7 @@ Ext.define('Kio.view.Setting', {
 				styleHtmlContent: true
 			},
 			{				
-	            xtype: 'emailfield',
+	            xtype: 'textfield',
 	            name: 'homeAddress',
     			placeHolder: 'Home address',
 				styleHtmlContent: true
@@ -88,7 +91,7 @@ Ext.define('Kio.view.Setting', {
 	            xtype: 'togglefield',
 	            name: 'pushNotifications',
 	            label: 'Push notifications',
-	            ui: 'radio',
+	            labelWidth: '75%',
 				styleHtmlContent: true
 			},
 			{				
@@ -103,7 +106,7 @@ Ext.define('Kio.view.Setting', {
 	            xtype: 'togglefield',
 	            name: 'currentLocation',
 	            label: 'Current location',
-	            ui: 'radio',
+	            labelWidth: '75%',
 				styleHtmlContent: true
 			}
 		]

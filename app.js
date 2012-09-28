@@ -4,13 +4,18 @@ Ext.application({
     requires: [
         'Ext.MessageBox',
 		'Ext.TitleBar',
-        'Ext.util.DelayedTask'
+        'Ext.util.DelayedTask',        
+        'Ext.form.FieldSet',
+        'Ext.field.Select',
+        'Ext.form.Email',
+        'Ext.form.Toggle',
+        'Ext.field.DatePicker'
     ],
 	
 	controllers: ['Main'],
-    views:  ['Main', 'Home', 'Report', 'News', 'About', 'Setting', 'TermsAndConditions', 'NewsList', 'NewsDetail'],
-	stores: ['News'],
-	models: ['News'],
+    views:  ['Main', 'Home', 'Report', 'News', 'About', 'Setting', 'TermsAndConditions', 'NewsList', 'NewsDetail', 'MakeReport'],
+	stores: ['News', 'Ground'],
+	models: ['News', 'Ground'],
 
     icon: {
         '57': 'resources/icons/Icon.png',				// A list of the icons used when users add the app to their home screen on iOS devices
