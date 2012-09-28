@@ -1,4 +1,3 @@
-// Im not sure if the form uses names as id, if so, use the proper naming standard we are using kio_name_type
 Ext.define('Kio.view.Setting', {
 	extend: 'Ext.form.Panel',
 	xtype: 'kio_setting_panel',
@@ -36,12 +35,13 @@ Ext.define('Kio.view.Setting', {
 				styleHtmlContent: true,
 				html: [
 					'<p><span style="font-size: 1.5em"><b>Your regular home ground</b></span><br/>Let us know your home ground and we can '+
-					'provide you with tailored news about our work and make it easier for you to report incidents of discrimination</p>'
+					'provide you with tailored news about our work and make it easier for you to report incidents of discrimination.</p>'
 				]
 			},
 			{					
                 xtype: 'selectfield',
 				//placeHolder: 'Regular home ground?',
+				name: 'kio_ground_selectfield',
 				store: 'Ground',
 		        valueField: 'groundName',
 		        displayField: 'groundName',
@@ -51,31 +51,31 @@ Ext.define('Kio.view.Setting', {
 	            xtype: 'panel',
 				styleHtmlContent: true,
 				html: [
-					'<p><span style="font-size: 1.5em"><b>Your regular home ground</b></span><br/>Let us know your home ground and we can provide you with tailored news about our work '+
-					'and make it easier for you to report incidents of discrimination</p>'
+					'<p><span style="font-size: 1.5em"><b>Your details</b></span><br/>Provide us with your details and we can make it '+
+					'for you to report incidents of discrimination.</p>'
 				]
 			},
 			{				
 	            xtype: 'textfield',
-	            name: 'name',
+	            name: 'kio_name_textfield',
     			placeHolder: 'Name',
 				styleHtmlContent: true
 			},
 			{				
 	            xtype: 'textfield',
-	            name: 'contactPhoneNumber',
+	            name: 'kio_contactPhoneNumber_textfield',
     			placeHolder: 'Contact phone number',
 				styleHtmlContent: true
 			},
 			{				
 	            xtype: 'emailfield',
-	            name: 'email',
+	            name: 'kio_email_emailfield',
     			placeHolder: 'Email address',
 				styleHtmlContent: true
 			},
 			{				
 	            xtype: 'textfield',
-	            name: 'homeAddress',
+	            name: 'kio_homeAddress_textfield',
     			placeHolder: 'Home address',
 				styleHtmlContent: true
 			},
@@ -83,14 +83,14 @@ Ext.define('Kio.view.Setting', {
 	            xtype: 'panel',
 				styleHtmlContent: true,
 				html: [
-					'<p><span style="font-size: 1.5em"><b>Your regular home ground</b></span><br/>Let us know your home ground and we can '+
-					'provide you with tailored news about our work and make it easier for you to report incidents of discrimination</p>'
+					'<p><span style="font-size: 1.5em"><b>Push notifications</b></span><br/>We would like to send you Push Notifications '+
+					'which may include alerts, news, sounds and icon badges.</p>'
 				]
 			},
 			{				
 	            xtype: 'togglefield',
-	            name: 'pushNotifications',
-	            label: 'Push notifications',
+	            name: 'kio_pushNotifications_togglefield',
+	            label: 'Push Notifications',
 	            labelWidth: '75%',
 				styleHtmlContent: true
 			},
@@ -98,14 +98,14 @@ Ext.define('Kio.view.Setting', {
 	            xtype: 'panel',
 				styleHtmlContent: true,
 				html: [
-					'<p><span style="font-size: 1.5em"><b>Your regular home ground</b></span><br/>Let us know your home ground and we can '+
-					'provide you with tailored news about our work and make it easier for you to report incidents of discrimination</p>'
+					'<p><span style="font-size: 1.5em"><b>Current location</b></span><br/>We would like to use your current location '+
+					'to help us offer you the most relevant choices and options.</p>'
 				]
 			},
 			{				
 	            xtype: 'togglefield',
-	            name: 'currentLocation',
-	            label: 'Current location',
+	            name: 'kio_currentLocation_togglefield',
+	            label: 'Use Current Location',
 	            labelWidth: '75%',
 				styleHtmlContent: true
 			}

@@ -38,6 +38,18 @@ var getLocation = function() {
 					}
 				});
 				geo.updateLocation();
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+				// save the user location config
+				var configStore = Ext.getStore('Config');
+				//loads any existing location data from config storage
+				configStore.load();
+
+				//now add some locations
+				configStore.add({location: 'true'});
+
+				//finally, save our location data to config storage
+				configStore.sync();
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			} else {								
 				// Initialize the main view
 				var mainView = Ext.create('Kio.view.Main');

@@ -1,4 +1,3 @@
-// Im not sure if the form uses names as id, if so, use the proper naming standard we are using kio_name_type
 Ext.define('Kio.view.MakeReport', {
 	extend: 'Ext.form.Panel',
 	xtype: 'kio_makeReport_navigationView',
@@ -41,12 +40,14 @@ Ext.define('Kio.view.MakeReport', {
 			{					
                 xtype: 'selectfield',
 				store: 'Ground',
+				name: 'kio_ground_selectfield',
 		        valueField: 'groundName',
 		        displayField: 'groundName',
 				styleHtmlContent: true            		
 			},
 			{					
                 xtype: 'datepickerfield',
+                name: 'kio_date_datepickerfield',
 				placeHolder: 'When did it happen?',
 				dateFormat: 'l d F Y g:i',
 				picker:{
@@ -58,6 +59,7 @@ Ext.define('Kio.view.MakeReport', {
 			},
 			{					
                 xtype: 'textareafield',
+                name: 'kio_description_textareafield',
 				placeHolder: 'Describe what happened',
 				styleHtmlContent: true            		
 			},
@@ -70,25 +72,25 @@ Ext.define('Kio.view.MakeReport', {
 			},
 			{				
 	            xtype: 'textfield',
-	            name: 'name',
+	            name: 'kio_name_textfield',
     			placeHolder: 'Name',
 				styleHtmlContent: true
 			},
 			{				
 	            xtype: 'textfield',
-	            name: 'contactPhoneNumber',
+	            name: 'kio_contactPhoneNumber_textfield',
     			placeHolder: 'Contact phone number',
 				styleHtmlContent: true
 			},
 			{				
 	            xtype: 'emailfield',
-	            name: 'email',
+	            name: 'kio_email_emailfield',
     			placeHolder: 'Email address',
 				styleHtmlContent: true
 			},
 			{				
 	            xtype: 'textfield',
-	            name: 'homeAddress',
+	            name: 'kio_homeAddress_textfield',
     			placeHolder: 'Home address',
 				styleHtmlContent: true
 			}

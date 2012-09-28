@@ -9,13 +9,14 @@ Ext.application({
         'Ext.field.Select',
         'Ext.form.Email',
         'Ext.form.Toggle',
-        'Ext.field.DatePicker'
+        'Ext.field.DatePicker',
+        'Ext.util.Geolocation'
     ],
 	
 	controllers: ['Main'],
     views:  ['Main', 'Home', 'Report', 'News', 'About', 'Setting', 'TermsAndConditions', 'NewsList', 'NewsDetail', 'MakeReport'],
-	stores: ['News', 'Ground'],
-	models: ['News', 'Ground'],
+	stores: ['News', 'Ground', 'Config'],
+	models: ['News', 'Ground', 'Config'],
 
     icon: {
         '57': 'resources/icons/Icon.png',				// A list of the icons used when users add the app to their home screen on iOS devices
@@ -43,10 +44,10 @@ Ext.application({
 		
         // Using a delayedTask, after x ms
         Ext.create('Ext.util.DelayedTask', function() {
-			// loadTermsAndConditions();		
-            var mainView = Ext.create('Kio.view.Main');
-            Ext.Viewport.add(mainView);
-            Ext.Viewport.setActiveItem(mainView); 	
+			loadTermsAndConditions();		
+            // var mainView = Ext.create('Kio.view.Main');
+            // Ext.Viewport.add(mainView);
+            // Ext.Viewport.setActiveItem(mainView); 	
         }).delay(0);
     },
 

@@ -12,8 +12,10 @@ Ext.define('Kio.controller.Main', {
 			submitReportButton: '#kio_submitReport_button',
 			cancelReportButton: '#kio_cancelReport_button',
 			cancelSettingButton: '#kio_cancelSetting_button',
+			saveSettingButton:'#kio_saveSetting_button',
 			backHomeButton: '#kio_backHome_button',
-			showReportButton: '#kio_showReport_panel'
+			showReportButton: '#kio_showReport_panel',
+			settingFormPanel: 'kio_setting_panel',
 			// newsTabBarButton: 'tabbar button[title=News]'
 		},
 		control: {
@@ -40,6 +42,9 @@ Ext.define('Kio.controller.Main', {
 			},
 			submitReportButton: {
 				tap: 'submitReport'
+			},
+			saveSettingButton: {
+				tap: 'saveSetting'	
 			}
 		}
 	},
@@ -79,7 +84,8 @@ Ext.define('Kio.controller.Main', {
 	},
 	submitReport: function(){
 		// Submit the report
-		console.log("submit the report");
+		console.log('submit the report');
+
 	},
 	backHomeFromTheSameTabPanel: function(){
 		// Getters and setter are created once you set a variable in refs
@@ -101,5 +107,17 @@ Ext.define('Kio.controller.Main', {
 			newsListPanel.deselectAll();
 		}
 		Ext.Viewport.setActiveItem(mainTab);
+	},
+	saveSetting: function(){
+		// Gets the values from the form and save them in a local store
+		var settingFormPanel = this.getSettingFormPanel();
+		var values = settingFormPanel.getValues();
+		var ground = values['kio_ground_selectfield'];
+		var name = values['kio_name_textfield'];
+		var phoneNumber = values['kio_contactPhoneNumber_textfield'];
+		var email = values['kio_email_emailfield'];
+		var address = values['kio_homeAddress_textfield'];
+		var pushNotifications = values['kio_pushNotifications_togglefield'];
+		var currentLocation = values['kio_currentLocation_togglefield'];
 	}
 });
