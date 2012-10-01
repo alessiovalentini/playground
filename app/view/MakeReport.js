@@ -39,6 +39,7 @@ Ext.define('Kio.view.MakeReport', {
 			},
 			{					
                 xtype: 'selectfield',
+				placeHolder: 'Where did it happen?',
 				store: 'Ground',
 				name: 'kio_ground_selectfield',
 		        valueField: 'groundName',

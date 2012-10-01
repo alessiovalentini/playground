@@ -10,11 +10,12 @@ Ext.application({
         'Ext.form.Email',
         'Ext.form.Toggle',
         'Ext.field.DatePicker',
-        'Ext.util.Geolocation'
+        'Ext.util.Geolocation',
+        'Ext.data.proxy.LocalStorage'
     ],
 	
 	controllers: ['Main'],
-    views:  ['Main', 'Home', 'Report', 'News', 'About', 'Setting', 'TermsAndConditions', 'NewsList', 'NewsDetail', 'MakeReport'],
+    views:  ['Main', 'Home', 'Report', 'News', 'About', 'Setting', 'TermsAndConditions', 'NewsList', 'NewsDetail', 'MakeReport', 'UpdateLocation'],
 	stores: ['News', 'Ground', 'Config'],
 	models: ['News', 'Ground', 'Config'],
 
@@ -44,10 +45,27 @@ Ext.application({
 		
         // Using a delayedTask, after x ms
         Ext.create('Ext.util.DelayedTask', function() {
-			loadTermsAndConditions();		
-            // var mainView = Ext.create('Kio.view.Main');
-            // Ext.Viewport.add(mainView);
-            // Ext.Viewport.setActiveItem(mainView); 	
+            // Gets the config storage
+            var store = Ext.getStore('Config');
+            // This is the config record Id in the local storage
+            var configRecordId = '1';
+            // Checks if the config record is in the local storage
+            // If it is not there it means this is the first time the user launches the app
+            var recordIdFromLocalStorage = store.find('recordId', configRecordId);
+            if(recordIdFromLocalStorage == -1){ // No config stored before in the localStorage
+                // The data that is going to be sync
+                var persistData = {
+                    recordId: configRecordId,
+                    pushNotifications: false
+                }
+                store.add(persistData);
+                store.sync();  
+                loadTermsAndConditions();              
+            } else {
+                // Set the location
+                var geo = Ext.create('Kio.view.UpdateLocation');
+                geo.updateLocation();                  
+            } 
         }).delay(0);
     },
 

@@ -16,7 +16,8 @@ Ext.define('Kio.controller.Main', {
 			backHomeButton: '#kio_backHome_button',
 			showReportButton: '#kio_showReport_panel',
 			settingFormPanel: 'kio_setting_panel',
-			// newsTabBarButton: 'tabbar button[title=News]'
+			settingTabBarButton: 'tabbar button[title=Setting]',
+			regularGround: '#kio_regularGround_selectfield'
 		},
 		control: {
 			newsListPanel: {
@@ -45,6 +46,9 @@ Ext.define('Kio.controller.Main', {
 			},
 			saveSettingButton: {
 				tap: 'saveSetting'	
+			},
+			settingTabBarButton: {
+				tap: 'loadSettingFormValues'
 			}
 		}
 	},
@@ -111,13 +115,19 @@ Ext.define('Kio.controller.Main', {
 	saveSetting: function(){
 		// Gets the values from the form and save them in a local store
 		var settingFormPanel = this.getSettingFormPanel();
-		var values = settingFormPanel.getValues();
-		var ground = values['kio_ground_selectfield'];
-		var name = values['kio_name_textfield'];
-		var phoneNumber = values['kio_contactPhoneNumber_textfield'];
-		var email = values['kio_email_emailfield'];
-		var address = values['kio_homeAddress_textfield'];
-		var pushNotifications = values['kio_pushNotifications_togglefield'];
-		var currentLocation = values['kio_currentLocation_togglefield'];
+		console.log(settingFormPanel.getRecord());
+	},
+	loadSettingFormValues: function() {
+		// Gets the config record
+		var formValues = Ext.getStore('Config').getAt(0);
+		this.getSettingFormPanel().setRecord(formValues);
+		// Gets the regular ground
+		var regularGround = this.getRegularGround();
+		// Gets the value from the store and set the new place holder
+        var store = Ext.getStore('Config');
+        var regularGroundLocalStorageValue = store.getAt(0).get('regularGround');
+        if(regularGroundLocalStorageValue != null){
+			regularGround.setPlaceHolder(regularGroundLocalStorageValue);        	
+        }
 	}
 });

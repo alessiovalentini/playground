@@ -9,47 +9,16 @@ var getLocation = function() {
 				  ],
 		fn: function(buttonId) {
 			if(buttonId === 'kio_okLocation_button'){
+				// Checks the local storage to see if the user activated the current location before				
+	            var store = Ext.getStore('Config');
+	            // Config record will be always at this position inside the local storage
+	            var configRecord = store.getAt(0);
+	            configRecord.set('currentLocation', true);
+				// sync the config record in the local storage
+				store.sync();
 				// Set the location
-				var geo = Ext.create('Ext.util.Geolocation', {
-					autoUpdate: false,
-					listeners: {
-						locationupdate: function(geo) {
-							alert('New latitude: ' + geo.getLatitude());								
-							// Initialize the main view
-							var mainView = Ext.create('Kio.view.Main');
-							Ext.Viewport.add(mainView);
-							Ext.Viewport.setActiveItem(mainView);
-						},
-						locationerror: function(geo, bTimeout, bPermissionDenied, bLocationUnavailable, message) {
-							if(bTimeout){
-								alert('Timeout occurred.');									
-								// Initialize the main view
-								var mainView = Ext.create('Kio.view.Main');
-					            Ext.Viewport.add(mainView);
-					            Ext.Viewport.setActiveItem(mainView);								
-							} else {
-								alert('Error occurred.');									
-								// Initialize the main view
-								var mainView = Ext.create('Kio.view.Main');
-					            Ext.Viewport.add(mainView);
-					            Ext.Viewport.setActiveItem(mainView);
-							}
-						}
-					}
-				});
+				var geo = Ext.create('Kio.view.UpdateLocation');
 				geo.updateLocation();
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-				// save the user location config
-				var configStore = Ext.getStore('Config');
-				//loads any existing location data from config storage
-				configStore.load();
-
-				//now add some locations
-				configStore.add({location: 'true'});
-
-				//finally, save our location data to config storage
-				configStore.sync();
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			} else {								
 				// Initialize the main view
 				var mainView = Ext.create('Kio.view.Main');

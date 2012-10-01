@@ -6,6 +6,7 @@ Ext.define('Kio.view.Setting', {
 		title: 'Setting',
 		iconCls: 'settings',
 		styleHtmlContent: true,
+
 			  
 		items: [
 			{
@@ -40,8 +41,9 @@ Ext.define('Kio.view.Setting', {
 			},
 			{					
                 xtype: 'selectfield',
-				//placeHolder: 'Regular home ground?',
-				name: 'kio_ground_selectfield',
+				placeHolder: 'Regular home ground?',
+				id: 'kio_regularGround_selectfield',
+				name: 'regularGround',
 				store: 'Ground',
 		        valueField: 'groundName',
 		        displayField: 'groundName',
@@ -57,25 +59,29 @@ Ext.define('Kio.view.Setting', {
 			},
 			{				
 	            xtype: 'textfield',
-	            name: 'kio_name_textfield',
+	            id: 'kio_name_textfield',
+	            name: 'name',
     			placeHolder: 'Name',
 				styleHtmlContent: true
 			},
 			{				
 	            xtype: 'textfield',
-	            name: 'kio_contactPhoneNumber_textfield',
+	            id: 'kio_contactPhoneNumber_textfield',
+	            name: 'phone',
     			placeHolder: 'Contact phone number',
 				styleHtmlContent: true
 			},
 			{				
 	            xtype: 'emailfield',
-	            name: 'kio_email_emailfield',
+	            id: 'kio_email_emailfield',
+	            name: 'email',
     			placeHolder: 'Email address',
 				styleHtmlContent: true
 			},
 			{				
 	            xtype: 'textfield',
-	            name: 'kio_homeAddress_textfield',
+	            id: 'kio_homeAddress_textfield',
+	            name: 'address',
     			placeHolder: 'Home address',
 				styleHtmlContent: true
 			},
@@ -89,7 +95,8 @@ Ext.define('Kio.view.Setting', {
 			},
 			{				
 	            xtype: 'togglefield',
-	            name: 'kio_pushNotifications_togglefield',
+	            id: 'kio_pushNotifications_togglefield',
+	            name: 'pushNotifications',
 	            label: 'Push Notifications',
 	            labelWidth: '75%',
 				styleHtmlContent: true
@@ -104,7 +111,8 @@ Ext.define('Kio.view.Setting', {
 			},
 			{				
 	            xtype: 'togglefield',
-	            name: 'kio_currentLocation_togglefield',
+	            id: 'kio_currentLocation_togglefield',
+	            name: 'currentLocation',
 	            label: 'Use Current Location',
 	            labelWidth: '75%',
 				styleHtmlContent: true
