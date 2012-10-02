@@ -113,9 +113,7 @@ Ext.define('Kio.controller.Main', {
 		Ext.Viewport.setActiveItem(mainTab);
 	},
 	saveSetting: function(){
-		// Gets the values from the form and save them in a local store
-		var settingFormPanel = this.getSettingFormPanel();
-		console.log(settingFormPanel.getRecord());
+		
 	},
 	loadSettingFormValues: function() {
 		// Gets the config record
