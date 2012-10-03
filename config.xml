@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<widget xmlns		= "http://www.w3.org/ns/widgets"
+	xmlns:gap	= "http://phonegap.com/ns/1.0"
+	id		= "com.phonegap.KIO"
+	version 	= "0.0.1">
+
+	<name>Oauth Test</name>
+
+	<description>
+		Oauth Test
+	</description>
+
+	<author href="http://www.makepositive.com" email="alessio.valentini@makepositive.com">
+		ALESSIO VALENTINI - MANUEL OLVERA @ Makepositive
+	</author>
+
+	<preference name="phonegap-version" value="2.0.0" />
+	<preference name="prerendered-icon" value="true" />
+	<preference name="webviewbounce" value="false"/>
+	
+</widget>

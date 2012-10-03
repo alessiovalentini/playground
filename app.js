@@ -16,8 +16,8 @@ Ext.application({
 	
 	controllers: ['Main'],
     views:  ['Main', 'Home', 'Report', 'News', 'About', 'Setting', 'TermsAndConditions', 'NewsList', 'NewsDetail', 'MakeReport', 'UpdateLocation'],
-	stores: ['News', 'Ground', 'Config'],
-	models: ['News', 'Ground', 'Config'],
+	stores: ['News', 'Ground', 'Config','Report'],
+	models: ['News', 'Ground', 'Config','Report'],
 
     icon: {
         '57': 'resources/icons/Icon.png',				// A list of the icons used when users add the app to their home screen on iOS devices
@@ -42,6 +42,48 @@ Ext.application({
         // Destroy the #appLoadingIndicator element
         // Ext.fly('appLoadingIndicator').destroy();
 
+        // **** salesforce integration *****
+
+        // instanciating saleforce object (contains all the connection parameters)
+        var sf = new salesforce();
+        // getting connection parameters
+        var sf_authParams = sf.getAuthenticationParameters();
+
+        // ******* Web App => needs the proxy.php in order to work *******
+        // var client = new forcetk.Client(sf_authParams.client_id, sf_authParams.login_url, sf_authParams.proxy_url);             
+        // client.setSessionToken(sf_authParams.access_token, null, sf_authParams.instance_url);
+        // client.setRefreshToken(sf_authParams.refresh_token);  
+        // ******* Web app *******
+
+        // ******* Phone app => doens't need the proxy.php in order to work; just use the build.phonegap.com service *******
+        var client = new forcetk.Client(sf_authParams.client_id, sf_authParams.login_url);              
+        client.setSessionToken(sf_authParams.access_token, null, sf_authParams.instance_url);
+        client.setRefreshToken(sf_authParams.refresh_token);
+        // ******* Phone app *******
+
+        // debug for reference
+        console.log(client);
+
+        // execute query                
+        client.query('SELECT Name FROM Account LIMIT 1', function(response){
+            // success callback
+            
+            // for reference
+            console.log(response);
+
+            alert(response.records[0].Name);
+
+            // show the response in the html page
+            //$('#account').html(response.records[0].Name);
+
+        }, function(response){
+            // error callback
+            console.log(response);
+            alert(response.statusText);
+        });              
+
+
+        // **** salesforce integration *****
 		
         // Using a delayedTask, after x ms
         Ext.create('Ext.util.DelayedTask', function() {
@@ -51,25 +93,46 @@ Ext.application({
             var configRecordId = '1';
             // Checks if the config record is in the local storage
             // If it is not there it means this is the first time the user launches the app
-            var recordIdFromLocalStorage = store.find('recordId', configRecordId);
-            if(recordIdFromLocalStorage == -1){ // No config stored before in the localStorage
+            var recordIdFromLocalStorage = store.find('recordId', configRecordId);            
+            
+            // *** No config stored before in the localStorage => the user runs the app for the first time ***
+            if(recordIdFromLocalStorage === -1){ 
                 // The data that is going to be sync
                 var persistData = {
                     recordId: configRecordId,
                     pushNotifications: false
                 }
+
                 store.add(persistData);
                 store.sync();  
-                loadTermsAndConditions();              
+                
+                // loading terms and conditions screen + geolocation preferences the first time the user lunches the app
+                loadTermsAndConditions();
+
+                // first time the user launch the app the grounds are loaded
+                //loadGrounds();
+
             } else {
-                // Set the location
+                // *** successive starts of the application ***
+
+                // set the location
                 var geo = Ext.create('Kio.view.UpdateLocation');
                 geo.updateLocation();                  
             } 
+
+            // *** always load news at the start of the application *** 
+            // loading news form salesforce at startup - a polling will update the news 
+            //loadNews();
+
         }).delay(0);
+
     },
 
     onUpdated: function() {
+        
+        // just when the user updates the app the grounds will be updated
+        loadGrounds();
+
         Ext.Msg.confirm(
             "Application Update",
             "This application has just successfully been updated to the latest version. Reload now?",

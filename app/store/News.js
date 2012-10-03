@@ -7,6 +7,7 @@ Ext.define('Kio.store.News', {
 		grouper: function(record){
 			return record.get('type');
 		},
+
 		data: [
 			{ 
 				title: 'The Justin Campaign represented at Brighton Pride', 
