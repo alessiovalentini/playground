@@ -30,9 +30,7 @@ Ext.define('Kio.view.Home', {
 				styleHtmlContent: true,
 				scrollable: false,
 				html: [
-					'<h3><b>Make a report <img style="float: right; margin-top: 0.4em; " width="25em" height="25em;" src="resources/images/arrow.png"/></b></h3>'+
-					'<p>By reporting an incident of discrimination you will be helping us to kick discrimination out of football</p>'+
-					'<p>It will take less than two minutes to do so</p>'
+					'<h3><b>Make a report <img style="float: right; margin-top: 0.4em; " width="25em" height="25em;" src="resources/images/arrow.png"/></b></h3>'
 				],
 			    initialize: function() {
 			        this.relayEvents(this.element, ['tap']);

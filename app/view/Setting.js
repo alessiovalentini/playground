@@ -45,8 +45,8 @@ Ext.define('Kio.view.Setting', {
 				id: 'kio_regularGround_selectfield',
 				name: 'regularGround',
 				store: 'Ground',
-		        valueField: 'groundName',
-		        displayField: 'groundName',
+		        valueField: 'recordId',			// sf id to send in the report *** IMPROVE ***
+		        displayField: 'groundName',		// the displaied value
 				styleHtmlContent: true
 			},
 			{				

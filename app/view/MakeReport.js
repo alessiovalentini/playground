@@ -42,10 +42,10 @@ Ext.define('Kio.view.MakeReport', {
                 xtype: 'selectfield',
 				placeHolder: 'Where did it happen?',
 				store: 'Ground',
-				id: 'kio_ground_selectfield',
+				id: 'kio_ground_selectfield',				
 				name: 'groundId',
-		        valueField: 'groundName',
-		        displayField: 'groundName',
+		        valueField: 'groundName',	// sf id to send in the report *** IMPROVE ***
+		        displayField: 'groundName', // sf name to display to the user
 				styleHtmlContent: true            		
 			},
 			{					
