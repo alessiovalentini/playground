@@ -148,7 +148,6 @@ Ext.define('Kio.controller.Main', {
 
 
 
-
 	},
 	backHomeFromTheSameTabPanel: function(){
 		// Getters and setter are created once you set a variable in refs
