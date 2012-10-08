@@ -59,28 +59,28 @@ Ext.define('Kio.view.Setting', {
 			},
 			{				
 	            xtype: 'textfield',
-	            id: 'kio_name_textfield',
+	            id: 'kio_settingPanel_name_textfield',
 	            name: 'name',
     			placeHolder: 'Name',
 				styleHtmlContent: true
 			},
 			{				
 	            xtype: 'textfield',
-	            id: 'kio_contactPhoneNumber_textfield',
+	            id: 'kio_settingPanel_contactPhoneNumber_textfield',
 	            name: 'phone',
     			placeHolder: 'Contact phone number',
 				styleHtmlContent: true
 			},
 			{				
 	            xtype: 'emailfield',
-	            id: 'kio_email_emailfield',
+	            id: 'kio_settingPanel_email_emailfield',
 	            name: 'email',
     			placeHolder: 'Email address',
 				styleHtmlContent: true
 			},
 			{				
 	            xtype: 'textfield',
-	            id: 'kio_homeAddress_textfield',
+	            id: 'kio_settingPanel_homeAddress_textfield',
 	            name: 'address',
     			placeHolder: 'Home address',
 				styleHtmlContent: true

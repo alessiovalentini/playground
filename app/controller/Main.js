@@ -54,6 +54,7 @@ Ext.define('Kio.controller.Main', {
 	},
 	
 	showNewsDetail: function(list, record){
+
 		// If it was created before, just show the panel otherwise it creates it
 		var newsDetailPanel = this.getNewsDetailPanel();
 		if(newsDetailPanel === undefined){
@@ -88,7 +89,65 @@ Ext.define('Kio.controller.Main', {
 	},
 	submitReport: function(){
 		// Submit the report
-		console.log('submit the report');
+		
+		// get form values
+		var formValues = this.getMakeReportPanel().getValues();
+
+		// groundId must be the actual id and not the label => fix this
+		var groundStore = Ext.getStore('Ground');
+		formValues['groundId'] = groundStore.findRecord('groundName',formValues['groundId']).data['recordId']
+		
+		// submit reports in bach (as an array)
+		var reports_batch = new Array();
+		reports_batch.push(formValues);
+
+		console.log(formValues);
+
+		// creating expected sf report batch object
+		var sfReportBatch = {
+			// the only one attribute is the reports batch array
+			reportList: reports_batch
+		};
+
+		// Kio.app.sf to get the client sf object
+		Kio.app.sf.client.apexrest( '/kio/v1.0/newReport', function(response){  // call to https://<instance_url>/services/apexrest/kio/v1.0/getNews
+            // success in the case of a post can be either an error return message or the actual response
+            
+            if( response == 'Success' ){
+            	// actual success response => delete the object and show success message / go to different screen
+            	alert('Thanks! Your report has been submitted');
+            }else{
+            	// error 
+            	console.log('success/else: ' + response);
+            }
+
+        }, function(response){
+            // error(S)
+            
+            if( response['responseText'].search("cURL error 6: Couldn't resolve host") === 0 ){
+            	// error: No internet connectivity (the responseText contains that string) => saving locally the report
+            	console.log('No internet connectivity => saving locally the report');
+            	// **** set retry global variable !?!?!?!?!
+
+				// generating an id for the local storage runtime (using the # of millisecond from year 1970)
+				formValues['recordId'] = Date.now();	
+				// get store and add record
+				var reportsStore = Ext.getStore('Report');
+				// save the raw form not stringyfied
+				reportsStore.add( formValues );
+				reportsStore.sync();
+
+				alert('Thanks! Your report will be submitted as soon as the Internet connectivity will be available');
+            }else{
+            	// error saving the record (for example wrong groundID)
+            	console.log('Error saving the object in SF: ' + response['responseText']);
+            }
+
+        }, 'POST', JSON.stringify(sfReportBatch), null);	// post payload (must stringify the object)
+
+
+
+
 
 	},
 	backHomeFromTheSameTabPanel: function(){

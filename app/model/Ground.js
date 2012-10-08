@@ -2,6 +2,7 @@ Ext.define('Kio.model.Ground', {
 	extend: 'Ext.data.Model',
 	
 	config: {
-		fields: ['groundName']
+		identifier: 'uuid',
+		fields: ['id','recordId', 'groundName']	// recordId is the salesforceRecordID
 	}
 });

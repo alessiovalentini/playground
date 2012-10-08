@@ -2,6 +2,7 @@ Ext.define('Kio.model.Report', {
 	extend: 'Ext.data.Model',
 	
 	config: {
-        fields: ['id', 'recordId', 'groundId', 'date', 'description','name','phone','email','address']
+		identifier: 'uuid',
+        fields: ['id','recordId', 'groundId', 'reportDate', 'description','name','phone','email','address']
     }
 });

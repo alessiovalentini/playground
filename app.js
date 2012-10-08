@@ -1,4 +1,4 @@
-Ext.application({
+var App = new Ext.application({
     name: 'Kio',
 
     requires: [
@@ -11,7 +11,8 @@ Ext.application({
         'Ext.form.Toggle',
         'Ext.field.DatePicker',
         'Ext.util.Geolocation',
-        'Ext.data.proxy.LocalStorage'
+        'Ext.data.proxy.LocalStorage',
+        'Ext.data.identifier.Uuid'
     ],
 	
 	controllers: ['Main'],
@@ -20,7 +21,7 @@ Ext.application({
 	models: ['News', 'Ground', 'Config','Report'],
 
     icon: {
-        '57': 'resources/icons/Icon.png',				// A list of the icons used when users add the app to their home screen on iOS devices
+        '57': 'resources/icons/Icon.png',				   // A list of the icons used when users add the app to their home screen on iOS devices
         '72': 'resources/icons/Icon~ipad.png',
         '114': 'resources/icons/Icon@2x.png',
         '144': 'resources/icons/Icon~ipad@2x.png'
@@ -29,6 +30,7 @@ Ext.application({
     isIconPrecomposed: true,
 
     startupImage: {
+        
         '320x460': 'resources/startup/320x460.jpg',			// If a user adds the app to their home screen on iOS
         '640x920': 'resources/startup/640x920.png',
         '768x1004': 'resources/startup/768x1004.png',
@@ -41,50 +43,88 @@ Ext.application({
 
         // Destroy the #appLoadingIndicator element
         // Ext.fly('appLoadingIndicator').destroy();
+        
+        // the salesforce and salesforce.client object will be available across the app accessing it with "Kio.app.sf"
+        this.sf = new salesforce('web_app','sandbox');  
 
-        // **** salesforce integration *****
+        // Loads Grounds data into the Store via the configured proxy
+        var groundsStore = Ext.getStore('Ground');
+        groundsStore.load();
 
-        // instanciating saleforce object (contains all the connection parameters)
-        var sf = new salesforce();
-        // getting connection parameters
-        var sf_authParams = sf.getAuthenticationParameters();
 
-        // ******* Web App => needs the proxy.php in order to work *******
-        // var client = new forcetk.Client(sf_authParams.client_id, sf_authParams.login_url, sf_authParams.proxy_url);             
-        // client.setSessionToken(sf_authParams.access_token, null, sf_authParams.instance_url);
-        // client.setRefreshToken(sf_authParams.refresh_token);  
-        // ******* Web app *******
-
-        // ******* Phone app => doens't need the proxy.php in order to work; just use the build.phonegap.com service *******
-        var client = new forcetk.Client(sf_authParams.client_id, sf_authParams.login_url);              
-        client.setSessionToken(sf_authParams.access_token, null, sf_authParams.instance_url);
-        client.setRefreshToken(sf_authParams.refresh_token);
-        // ******* Phone app *******
-
-        // debug for reference
-        console.log(client);
-
-        // execute query                
-        client.query('SELECT Name FROM Account LIMIT 1', function(response){
-            // success callback
+        // **** LOAD NEWS AT THE STARTUP in Background **** 
+     
+        // get news callout to https://<instance_url>/services/apexrest/kio/v1.0/getNews
+        this.sf.client.apexrest( '/kio/v1.0/getNews', function(response){
+            // success => save news in the localstorage
+            var newsStore = Ext.getStore('News');
             
-            // for reference
-            console.log(response);
+            //valid response is coming from SF as a string that must be parsed in order to get the right JS array of object
+            var decoded_response = JSON.parse(response);
+            //console.log(decoded_response);
+            
+            // testing porpuses 
+            // getNews(response);
 
-            alert(response.records[0].Name);
 
-            // show the response in the html page
-            //$('#account').html(response.records[0].Name);
+            // remove all
+            newsStore.removeAll();
+            newsStore.sync();
+            // write all from sf
+            for( var i = 0; i < decoded_response.length; i++ ){                
+                if( newsStore.find('recordId',decoded_response[i]['recordId']) === -1 ){
+                    newsStore.add(decoded_response[i]);                    
+                }
+            }
+            newsStore.sync();
+
+            
+            // for( var i = 0; i < newsStore.getTotalCount() ; i++){
+            //     console.log(newsStore.getAt(i));
+            // }
+
+            // set one as Other instead of Latest
+            // var record = newsStore.findRecord('recordId','a01J0000003o6suIAA');
+            // console.log(record);
+            // record.set('type','Other');
+            // newsStore.sync();            
+
+            console.log('news loaded and saved successfully');
 
         }, function(response){
-            // error callback
+            // error
+            console.log('load news error: ');
             console.log(response);
-            alert(response.statusText);
-        });              
+
+            if( response['status'] === 404 ){
+                // token must be refreshed
+                Kio.app.sf.client.refreshAccessToken(function(response){
+                    // success
+                    console.log('token refreshed');
+                    console.log(response);
+
+                    // set up the new token
+                    Kio.app.sf.client.access_token = response['access_token'];
+                    // update the new token for next access
+                    // ***********************
+                    // make another call in order to get the news
+                    
+                },function(response){
+                    // error again => 
+                    console.log('token refresh error');
+                    console.log(response);
+                });
+            }else{
+                // no internet connectivity =>
+            }
 
 
-        // **** salesforce integration *****
-		
+
+        }, 'GET', null, null);
+
+        // **** LOAD NEWS AT THE STARTUP in Background **** 
+
+
         // Using a delayedTask, after x ms
         Ext.create('Ext.util.DelayedTask', function() {
             // Gets the config storage
@@ -110,28 +150,96 @@ Ext.application({
                 loadTermsAndConditions();
 
                 // first time the user launch the app the grounds are loaded
-                //loadGrounds();
+                // **** LOAD GROUNDS ****
+                Kio.app.sf.client.apexrest( '/kio/v1.0/getGrounds', function(response){
+                    // custom parsing => match model fields
+                    var grounds = new Array();
+                    for(var i in JSON.parse(response)){
+                        
+                        // recordId, groundName
+                        var ground = {
+
+                            recordId: JSON.parse(response)[i]['Id'],
+                            groundName: JSON.parse(response)[i]['Name']
+
+                        }
+                        grounds.push(ground);
+                    }
+                    
+                    // array of reports ready to be used in sencha => save grounds in the local storage
+                    console.log('loaded grounds:');
+                    console.log(grounds); 
+
+                    // get the ground store
+                    var ground_store = Ext.getStore('Ground');
+
+                    //remove all
+                    ground_store.removeAll();
+                    ground_store.sync();
+                    // add new/updated grounds
+                    for(var i in grounds){
+                        ground_store.add(grounds[i]);
+                    }
+                    ground_store.sync();
+
+
+                }, function(response){
+                    console.log('error loading grounds' + response);
+                });
+                // **** LOAD GROUNDS ****
 
             } else {
                 // *** successive starts of the application ***
 
                 // set the location
                 var geo = Ext.create('Kio.view.UpdateLocation');
-                geo.updateLocation();                  
-            } 
-
-            // *** always load news at the start of the application *** 
-            // loading news form salesforce at startup - a polling will update the news 
-            //loadNews();
+                geo.updateLocation();
+            }
 
         }).delay(0);
-
     },
 
     onUpdated: function() {
         
         // just when the user updates the app the grounds will be updated
-        loadGrounds();
+        // **** LOAD GROUNDS ****
+        Kio.app.client.apexrest( '/kio/v1.0/getGrounds', function(response){
+            // custom parsing => match model fields
+            var grounds = new Array();
+            for(var i in JSON.parse(response)){
+                
+                // recordId, groundName
+                var ground = {
+
+                    recordId: JSON.parse(response)[i]['Id'],
+                    groundName: JSON.parse(response)[i]['Name']
+
+                }
+                grounds.push(ground);
+            }
+            
+            // array of reports ready to be used in sencha => save grounds in the local storage
+            console.log('loaded grounds:');
+            console.log(grounds); 
+
+            // get the ground store
+            var ground_store = Ext.getStore('Ground');
+
+            //remove all
+            ground_store.removeAll();
+            ground_store.sync();
+            // add new/updated grounds
+            for(var i in grounds){
+                ground_store.add(grounds[i]);
+            }
+            ground_store.sync();
+
+
+        }, function(response){
+            console.log('error loading grounds' + response);
+        });
+        // **** LOAD GROUNDS ****
+
 
         Ext.Msg.confirm(
             "Application Update",
@@ -142,5 +250,39 @@ Ext.application({
                 }
             }
         );
-    }
+    }    
+
+    // functions defined here are accessible via Kio.app.<function_name>
 });
+
+
+
+
+// this.sf.client.apexrest( '/kio/v1.0/getReports', function(response){
+   
+//     // custom parsing => match model fields
+//     var reports = new Array();
+//     for(var i in JSON.parse(response)){
+        
+//         // fields: ['recordId', 'groundId', 'reportDate', 'description','name','phone','email','address']
+//         var report = {
+            
+//             recordId: JSON.parse(response)[i]['Id'],
+//             groundId: '',
+//             reportDate: JSON.parse(response)[i]['When_did_it_happen__c  '],
+//             description: '',
+//             phone: '',
+//             email: '',
+//             address: ''
+//         }
+//         reports.push(report);
+
+//         // console.log(JSON.parse(response)[i]);
+//     }
+    
+//     // array of reports ready to be used in sencha
+//     console.log(reports);
+
+// }, function(){
+//     console.log(response);
+// });
