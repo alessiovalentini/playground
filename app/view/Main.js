@@ -2,6 +2,7 @@ Ext.define("Kio.view.Main", {
     extend: 'Ext.tab.Panel',
     xtype: 'kio_main_tabPanel',
 
+    // required to use the defined xtype in the items list
     requires: [
         'Kio.view.Home',
         'Kio.view.Report',

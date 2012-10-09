@@ -4,7 +4,7 @@ Ext.define('Kio.controller.Main', {
 	config: {
 		refs: {
 			mainTabPanel: 'kio_main_tabPanel',
-			showReportPanel : 'kio_showReport_panel',
+			// showReportPanel : 'kio_showReport_panel',
 			newsDetailPanel: 'kio_newsDetail_panel',
 			newsListPanel: 'kio_newsList_list',
 			makeReportButton: '#kio_makeReport_button',
@@ -17,7 +17,8 @@ Ext.define('Kio.controller.Main', {
 			showReportButton: '#kio_showReport_panel',
 			settingFormPanel: 'kio_setting_panel',
 			settingTabBarButton: 'tabbar button[title=Setting]',
-			regularGround: '#kio_regularGround_selectfield'
+			regularGround: '#kio_regularGround_selectfield',
+			makeReportHomeButton: '#kio_home_makeAReport_button'
 		},
 		control: {
 			newsListPanel: {
@@ -37,6 +38,9 @@ Ext.define('Kio.controller.Main', {
 			},
 			makeReportButton: {
 				tap: 'showMakeReport'
+			},
+			makeReportHomeButton:{
+				tap: 'showReport'	
 			},
 			cancelReportButton: {
 				tap: 'backHomeFromAnotherPanel'
@@ -89,9 +93,14 @@ Ext.define('Kio.controller.Main', {
 
 		// **** IMPROVE *** get the name of the ground having the regularGround id, in order to prepopulate the make report view with the name of the ground
 		var groundStore = Ext.getStore('Ground');
-		var groundName = groundStore.findRecord('recordId',settings['data']['regularGround'])['data']['groundName'];
+		var groundRecord = groundStore.findRecord('recordId',settings['data']['regularGround']);
+		var groundName;
 
-		console.log(groundName);
+		// check if a 
+		if( groundRecord != null )
+			groundName = groundRecord['data']['groundName'];	// not possible to get ['data'] of undefined
+		else
+			groundName = null;
 
 		makeReportPanel.setValues({
 			address: settings['data']['address'],
@@ -106,10 +115,18 @@ Ext.define('Kio.controller.Main', {
 		Ext.Viewport.setActiveItem(makeReportPanel);
 	},
 	submitReport: function(){
-		// Submit the report
+		// Submit the report to SF
+
+		// cache this
+		var mainController = this;
 		
 		// get form values
 		var formValues = this.getMakeReportPanel().getValues();
+
+		// change date / time format to match the one we expet in SF: "12/02/2012 12:34"
+		var pickedDate = formValues['reportDate'];
+		formValues['reportDate'] = pickedDate.getDate() + '/' + pickedDate.getMonth() + '/' + pickedDate.getFullYear() + ' ' + pickedDate.getHours() + ':' + pickedDate.getMinutes();
+		console.log(formValues);
 
 		// groundId must be the actual id and not the label => fix this
 		var groundStore = Ext.getStore('Ground');
@@ -137,6 +154,11 @@ Ext.define('Kio.controller.Main', {
 	            if( response == 'Success' ){
 	            	// actual success response => delete the object and show success message / go to different screen
 	            	alert('Thanks! Your report has been submitted');
+	            	// go to the home screen	      
+					var mainPanel = mainController.getMainTabPanel()	// get main tab panel
+	            	mainPanel.setActiveItem(0);		      				// set that the active item is the first (home)
+	            	Ext.Viewport.setActiveItem(mainPanel);				// set the active item for the viewport => is the tab main panel with home panel selected
+
 	            }else{
 	            	// error 
 	            	console.log('success/else: ' + response);
@@ -159,6 +181,11 @@ Ext.define('Kio.controller.Main', {
 					reportsStore.sync();
 
 					alert('Thanks! Your report will be submitted as soon as the Internet connectivity will be available');
+					// go to the home screen
+					var mainPanel = mainController.getMainTabPanel()	// get main tab panel
+	            	mainPanel.setActiveItem(0);		      				// set that the active item is the first (home)
+	            	Ext.Viewport.setActiveItem(mainPanel);				// set the active item for the viewport => is the tab main panel with home panel selected
+
 	            }else{
 	            	// error saving the record (for example wrong groundID)
 	            	console.log('Error saving the object in SF: ' + response['responseText']);
@@ -173,24 +200,37 @@ Ext.define('Kio.controller.Main', {
 	},
 	backHomeFromTheSameTabPanel: function(){
 		// Getters and setter are created once you set a variable in refs
+		
+		// NB staying on the same tabPanel is not necessary to the activeItem in the viewport but just the activeItem for the tabPanel
 		var mainTab = this.getMainTabPanel();
 		mainTab.setActiveItem(0);		
 	},
 	backHomeFromAnotherPanel: function(){
-		// If it was created before, just show the panel otherwise it creates it
-		var mainTab = this.getMainTabPanel();
-		if(mainTab === undefined){
-			// instanciate the view
-			mainTab = Ext.create('Kio.view.Main');
-			// add and set as an active view
-			Ext.Viewport.add(mainTab);
-		}
+		
 		// Deselect items from the news list
-		var newsListPanel = this.getNewsListPanel();
+    	var newsListPanel = this.getNewsListPanel();
 		if(newsListPanel != undefined){
 			newsListPanel.deselectAll();
 		}
-		Ext.Viewport.setActiveItem(mainTab);
+
+		var mainPanel = this.getMainTabPanel()	// get main tab panel
+    	mainPanel.setActiveItem(0);		      				// set that the active item is the first (home)
+    	Ext.Viewport.setActiveItem(mainPanel);				// set the active item for the viewport => is the tab main panel with home panel selected
+
+		// If it was created before, just show the panel otherwise it creates it
+		// var mainTab = this.getMainTabPanel();
+		// if(mainTab === undefined){
+		// 	// instanciate the view
+		// 	mainTab = Ext.create('Kio.view.Main');
+		// 	// add and set as an active view
+		// 	Ext.Viewport.add(mainTab);
+		// }
+		// // Deselect items from the news list
+		// var newsListPanel = this.getNewsListPanel();
+		// if(newsListPanel != undefined){
+		// 	newsListPanel.deselectAll();
+		// }
+		// Ext.Viewport.setActiveItem(mainTab);
 	},
 	saveSetting: function(){
 		// get form values

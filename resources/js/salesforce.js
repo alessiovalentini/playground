@@ -73,6 +73,11 @@ salesforce.prototype.getClient = function(app_type){
 	return this.client;
 };
 
+salesforce.prototype.setAccessToken = function(access_token){
+	this.access_token = access_token;
+	this.client.sessionId = access_token;
+}
+
 salesforce.prototype.getAuthenticationParameters = function(){
 	return {
 

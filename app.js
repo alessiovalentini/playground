@@ -20,6 +20,11 @@ var App = new Ext.application({
 	stores: ['News', 'Ground', 'Config','Report'],
 	models: ['News', 'Ground', 'Config','Report'],
 
+    // web app full screen
+    // viewport: {
+    //     autoMaximize: true
+    // },
+
     icon: {
         '57': 'resources/icons/Icon.png',				   // A list of the icons used when users add the app to their home screen on iOS devices
         '72': 'resources/icons/Icon~ipad.png',
@@ -44,24 +49,20 @@ var App = new Ext.application({
         // Destroy the #appLoadingIndicator element
         // Ext.fly('appLoadingIndicator').destroy();
         
-        // **** AUTHENTICATION AND LOADING ****         
+        // **** AUTHENTICATION AND LOADING ****                 
 
         // the salesforce and salesforce.client object will be available across the app accessing it with "Kio.app.sf"
         this.sf = new salesforce('web_app','sandbox');  
-
-        console.log(Kio.app.sf.client);
 
         // get session_id using refresh_token
         this.sf.client.refreshAccessToken(function(response){
             // success
             console.log('got access_token using the refresh_token');
 
-            // set up the access_token in memory
-            Kio.app.sf.client.access_token = response['access_token'];
+            // set up the new access_token (sessionId) in memory
+            Kio.app.sf.setAccessToken(response['access_token']);
 
-            console.log(Kio.app.sf.client);
-
-            // **** LOAD NEWS AT THE STARTUP in Background **** 
+            // **** Once got the access_token LOAD NEWS AT THE STARTUP in Background **** 
             Kio.app.sf.client.apexrest( '/kio/v1.0/getNews', function(response){
                 // success => save news in the localstorage
                 var newsStore = Ext.getStore('News');
@@ -214,7 +215,7 @@ var App = new Ext.application({
                 geo.updateLocation();
             }
 
-        }).delay(0);
+        }).delay(1000);
     },
 
     onUpdated: function() {

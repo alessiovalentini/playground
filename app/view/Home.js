@@ -13,28 +13,37 @@ Ext.define('Kio.view.Home', {
 				title: 'Kick it out',
 				docked: 'top'
 			},
+			// {
+			// 	xtype: 'toolbar',
+   //              title: {
+			// 		title: 'Report an incident of discrimination',
+			// 		style: {
+			// 			'text-align': 'left'
+			// 		}
+			// 	},
+			// 	ui: 'light',
+			// 	style: 'font-size: 0.7em'
+			// },
 			{
-				xtype: 'toolbar',
-                title: {
-					title: 'Report an incident of discrimination',
-					style: {
-						'text-align': 'left'
-					}
-				},
-				ui: 'light',
-				style: 'font-size: 0.7em'
-			},
-			{
-				xtype: 'panel',
-				id: 'kio_showReport_panel',
-				styleHtmlContent: true,
-				scrollable: false,
-				html: [
-					'<h3><b>Make a report <img style="float: right; margin-top: 0.4em; " width="25em" height="25em;" src="resources/images/arrow.png"/></b></h3>'
-				],
-			    initialize: function() {
-			        this.relayEvents(this.element, ['tap']);
-			    }
+				// xtype: 'panel',
+				// id: 'kio_showReport_panel',
+				// styleHtmlContent: true,
+				// scrollable: false,
+				// html: [
+				// 	'<h3><b>Make a report <img style="float: right; margin-top: 0.4em; " width="25em" height="25em;" src="resources/images/arrow.png"/></b></h3>'
+				// ],
+			 //    initialize: function() {
+			 //        this.relayEvents(this.element, ['tap']);
+			 //    }			 	
+
+			 	// new make report panel / button
+			 	xtype: 'button',
+			 	id: 'kio_home_makeAReport_button',
+			 	padding: '15px',
+			 	margin: '3px',
+			 	text: 'Make a Report of Racism',
+			 	ui: 'decline'
+
 			},
 			{
 				xtype: 'toolbar',

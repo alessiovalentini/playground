@@ -53,7 +53,9 @@ Ext.define('Kio.view.MakeReport', {
                 id: 'kio_date_datepickerfield',
                 name: 'reportDate',
 				placeHolder: 'When did it happen?',
-				dateFormat: 'l d F Y g:i',
+				// dateFormat: 'l d F Y g:i',
+				dateFormat: 'd/m/Y g:i',		// how to display the date / time => in an example this becomes: 12/02/2012 12:34
+				value: new Date(),				// default value
 				picker:{
 	               yearFrom : new Date().getFullYear(),
 	               yearTo   : new Date().getFullYear() + 15,
