@@ -48,21 +48,37 @@ Ext.define('Kio.view.MakeReport', {
 		        displayField: 'groundName', // sf name to display to the user
 				styleHtmlContent: true            		
 			},
-			{					
-                xtype: 'datepickerfield',
-                id: 'kio_date_datepickerfield',
-                name: 'reportDate',
+			// {					
+   //              xtype: 'datepickerfield',
+   //              id: 'kio_date_datepickerfield',
+   //              name: 'reportDate',
+			// 	placeHolder: 'When did it happen?',
+			// 	// dateFormat: 'l d F Y g:i',
+			// 	dateFormat: 'd/m/Y g:i',		// how to display the date / time => in an example this becomes: 12/02/2012 12:34
+			// 	value: new Date(),				// default value
+			// 	picker:{
+	  //              yearFrom : new Date().getFullYear(),
+	  //              yearTo   : new Date().getFullYear() + 15,
+	  //              slotOrder:['day', 'month', 'year'],
+   //             },
+			// 	styleHtmlContent: true     		
+			// },
+			{
+	            xtype: 'datetimepickerfield',
+	        	id: 'kio_date_datepickerfield',
+	            name : 'reportDate',
 				placeHolder: 'When did it happen?',
-				// dateFormat: 'l d F Y g:i',
-				dateFormat: 'd/m/Y g:i',		// how to display the date / time => in an example this becomes: 12/02/2012 12:34
-				value: new Date(),				// default value
-				picker:{
-	               yearFrom : new Date().getFullYear(),
-	               yearTo   : new Date().getFullYear() + 15,
-	               slotOrder:['day', 'month', 'year'],
-               },
-				styleHtmlContent: true            		
-			},
+	            //value: new Date(),
+				styleHtmlContent: true,
+	            dateTimeFormat : 'd/m/Y H:i',
+	            picker: {
+	                yearFrom: new Date().getFullYear(),
+	                yearTo: new Date().getFullYear() + 15,
+	                minuteInterval : 1,
+	                ampm : false,
+	                slotOrder: ['day', 'month', 'year','hour','minute']
+	         	}
+	        },
 			{					
                 xtype: 'textareafield',
                 id: 'kio_description_textareafield',

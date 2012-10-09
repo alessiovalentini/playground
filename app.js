@@ -12,7 +12,9 @@ var App = new Ext.application({
         'Ext.field.DatePicker',
         'Ext.util.Geolocation',
         'Ext.data.proxy.LocalStorage',
-        'Ext.data.identifier.Uuid'
+        'Ext.data.identifier.Uuid',
+        'Ext.ux.picker.DateTime',
+        'Ext.ux.field.DateTimePicker'
     ],
 	
 	controllers: ['Main'],
@@ -54,6 +56,7 @@ var App = new Ext.application({
         // the salesforce and salesforce.client object will be available across the app accessing it with "Kio.app.sf"
         this.sf = new salesforce('web_app','sandbox');  
 
+        // **** PROBLEM WITH WINDOWS ****   
         // get session_id using refresh_token
         this.sf.client.refreshAccessToken(function(response){
             // success
@@ -61,6 +64,8 @@ var App = new Ext.application({
 
             // set up the new access_token (sessionId) in memory
             Kio.app.sf.setAccessToken(response['access_token']);
+            console.log(response['access_token']);
+        // **** PROBLEM WITH WINDOWS ****   
 
             // **** Once got the access_token LOAD NEWS AT THE STARTUP in Background **** 
             Kio.app.sf.client.apexrest( '/kio/v1.0/getNews', function(response){
@@ -69,7 +74,7 @@ var App = new Ext.application({
                 
                 //valid response is coming from SF as a string that must be parsed in order to get the right JS array of object
                 var decoded_response = JSON.parse(response);
-                //console.log(decoded_response);
+                console.log(decoded_response);
 
                 // remove all
                 newsStore.removeAll();
@@ -125,6 +130,7 @@ var App = new Ext.application({
 
             // **** LOAD NEWS AT THE STARTUP in Background **** 
 
+        // **** PROBLEM WITH WINDOWS ****   
         },function(response){
             // error getting access_token
             console.log('error getting the access_token using the refresh_token');
@@ -136,6 +142,8 @@ var App = new Ext.application({
                 // *** IMPROVE *** SET A GLOBAL OFFLINE VAR
             }
         });
+        // **** PROBLEM WITH WINDOWS ****         
+
 
         // Loads Grounds data into the Store via the configured proxy
         var groundsStore = Ext.getStore('Ground');
