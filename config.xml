@@ -4,10 +4,10 @@
 	id		= "com.phonegap.KIO"
 	version 	= "0.0.1">
 
-	<name>Oauth Test</name>
+	<name>KIO</name>
 
 	<description>
-		Oauth Test
+		Kick it out mobile application
 	</description>
 
 	<author href="http://www.makepositive.com" email="alessio.valentini@makepositive.com">
