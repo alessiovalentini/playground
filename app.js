@@ -2,6 +2,7 @@ var App = new Ext.application({
     name: 'Kio',
 
     requires: [
+        // 'Ext.device.Connection',    // the EVENT is working only with sencha packager (only isOnline() is working otherwise)
         'Ext.MessageBox',
 		'Ext.TitleBar',
         'Ext.util.DelayedTask',        
@@ -46,12 +47,33 @@ var App = new Ext.application({
 
     launch: function() {    // at application startup:
 
+        // if (Ext.device.Connection.isOnline()) {
+        //     Ext.Msg.alert('You are currently connected via ' + Ext.device.Connection.getType());
+        // } else {
+        //     Ext.Msg.alert('You are not currently connected');
+        // }
+
+        // this.connectivity = Ext.device.Connection;
+        // console.log(this.connectivity);
+        // console.log(this.connectivity.isOnline());
+
+        // the EVENT is working only with sencha packager
+        // Ext.device.Connection.on({
+        //     onlinechange: function(online, type){    // action to perform when the internet conncetion is changing
+
+                //         console.log('online? ' + online);
+                //         alert('online? ' + online);
+                // },
+        // });
+        
+
         // Destroy the #appLoadingIndicator element
         // Ext.fly('appLoadingIndicator').destroy();
         
         // **** AUTHENTICATION AND LOADING ****                 
 
         // the salesforce and salesforce.client object will be available across the app accessing it with "Kio.app.sf"
+
         this.sf = new salesforce('web_app','sandbox');  
 
         // get session_id using refresh_token
@@ -61,6 +83,7 @@ var App = new Ext.application({
 
             // set up the new access_token (sessionId) in memory
             Kio.app.sf.setAccessToken(response['access_token']);
+            console.log(response['access_token']);
 
             // **** Once got the access_token LOAD NEWS AT THE STARTUP in Background **** 
             Kio.app.sf.client.apexrest( '/kio/v1.0/getNews', function(response){
@@ -94,6 +117,47 @@ var App = new Ext.application({
                 // newsStore.sync();            
 
                 console.log('news loaded and saved successfully');
+
+                // *** IMPROVE *** Shouldn't load grounds all the time - 
+                // but looks like the token is not registered when the call to get grounds is fired so is failing loading the grounds
+                // **** LOAD GROUNDS ****
+                Kio.app.sf.client.apexrest( '/kio/v1.0/getGrounds', function(response){
+                    // custom parsing => match model fields
+                    var grounds = new Array();
+                    for(var i in JSON.parse(response)){
+                        
+                        // recordId, groundName
+                        var ground = {
+
+                            recordId: JSON.parse(response)[i]['Id'],
+                            groundName: JSON.parse(response)[i]['Name']
+
+                        }
+                        grounds.push(ground);
+                    }
+                    
+                    // array of reports ready to be used in sencha => save grounds in the local storage
+                    console.log('loaded grounds:');
+                    console.log(grounds); 
+
+                    // get the ground store
+                    var ground_store = Ext.getStore('Ground');
+
+                    //remove all
+                    ground_store.removeAll();
+                    ground_store.sync();
+                    // add new/updated grounds
+                    for(var i in grounds){
+                        ground_store.add(grounds[i]);
+                    }
+                    ground_store.sync();
+
+
+                }, function(response){
+                    console.log('error loading grounds:');
+                    console.log(response);
+                });
+                // **** LOAD GROUNDS ****
 
             }, function(response){
                 // error
@@ -140,6 +204,10 @@ var App = new Ext.application({
         // Loads Grounds data into the Store via the configured proxy
         var groundsStore = Ext.getStore('Ground');
         groundsStore.load();
+
+        // Load old reports saved into the store (in case we did not send them and shut down the app)
+        var reportsStore = Ext.getStore('Report');
+        reportsStore.load();
 
         // **** AUTHENTICATION AND LOADING ****         
 
@@ -203,7 +271,8 @@ var App = new Ext.application({
 
 
                 }, function(response){
-                    console.log('error loading grounds' + response);
+                    console.log('error loading grounds:');
+                    console.log(response);
                 });
                 // **** LOAD GROUNDS ****
 
@@ -215,7 +284,7 @@ var App = new Ext.application({
                 geo.updateLocation();
             }
 
-        }).delay(1000);
+        }).delay(0);
     },
 
     onUpdated: function() {

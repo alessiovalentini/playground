@@ -5,7 +5,7 @@ Ext.define('Kio.view.Home', {
 	config: {
 		title: 'Home',
 		iconCls: 'home',
-		scrollable: true,
+		scrollable: true,	// the whole panel scrolls
 			  
 		items: [
 			{
@@ -58,7 +58,7 @@ Ext.define('Kio.view.Home', {
 			},
 			{
 				xtype: 'kio_newsList_list',
-				scrollable: false,
+				scrollable: false,	// this newsList panel inside the parent one doesn't scroll
 				grouped: false
 			}
 		]

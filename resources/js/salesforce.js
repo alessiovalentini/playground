@@ -37,7 +37,7 @@ function salesforce(app_type, env){
 		// this token last the time set up in sf under timeout options
 		// if no one is calling the api for that amount of time the token must be refreshed using the refresh_token
 		// in this implementation the token is getted every time at the startup of the app using the refresh token and saved in memory
-		this.access_token  = "00DJ00000007aDx!AQIAQICYDS16Vd6lpw5lpN..ISxRmQbFKYlC10GVT9aXWGCh_BHcQi37_m7Kc3ArhJQZdu6S3T8Ob1WY9inkqAuyvZ0m5XxN";
+		this.access_token  = "00DJ00000007aDx!AQIAQMxgbpfK0y.Ci.86TM48I2nV5ltKF8H1.SSMf7LXlip1pZSIx6jqlHfwrI2jiXJtNqNJgjf1tEUcmowfOkIoU9v.QdQ9";
 		// long term token
 		this.refresh_token = "5Aep861rSrJOsYD8snSP51Uw1W8G75ZRCxISj6S5dOQX86ZmVSlXWKKQUJ09Tlf1rnjpKUe_q41SQ==";
 		this.instance_url  = "https://eu2.salesforce.com";
@@ -88,3 +88,77 @@ salesforce.prototype.getAuthenticationParameters = function(){
 
 	};
 };
+
+// // call
+// sf.getNews(function(success_response){
+
+
+
+// },function(error_response){
+
+
+// });
+
+
+
+// sf.newsCallout(function(success_response){
+
+
+// }, function(error_response){
+
+// });
+
+
+
+// salesforce.prototype.newsCallout = function(successResponse, errorResponse){
+//     Kio.app.sf.client.apexrest( '/kio/v1.0/getNews', successResponse,errorResponse, 'GET', null, null);
+// }
+
+// salesforce.prototype.getNews = function(){
+
+// 	// success => save news in the localstorage
+//     var newsStore = Ext.getStore('News');
+    
+//     //valid response is coming from SF as a string that must be parsed in order to get the right JS array of object
+//     var decoded_response = JSON.parse(response);
+//     //console.log(decoded_response);
+
+//     // remove all
+//     newsStore.removeAll();
+//     newsStore.sync();
+//     // write all from sf
+//     for( var i = 0; i < decoded_response.length; i++ ){                
+//         if( newsStore.find('recordId',decoded_response[i]['recordId']) === -1 ){
+//             newsStore.add(decoded_response[i]);                    
+//         }
+//     }
+//     newsStore.sync();       
+
+//     console.log('news loaded and saved successfully');
+	
+// }
+
+// 	// error
+//     console.log('load news error: ');
+//     console.log(response);
+
+//     if( response['status'] === 404 ){
+//         // token must be refreshed
+//         Kio.app.sf.client.refreshAccessToken(function(response){
+//             // success
+//             console.log('token refreshed / 2');
+//             console.log(response);
+
+//             // set up the new token
+//             Kio.app.sf.client.access_token = response['access_token'];
+//             // *** IMPROVE *** make another call in order to get the news ????? + What about grounds
+            
+//         },function(response){
+//             // error again => no internet connectivity => *** IMPROVE ***
+//             console.log('token refresh error / 2');
+//             console.log(response);
+//         });
+//     }else{
+//         // no internet connectivity => *** IMPROVE ***
+//         console.log('not a problem with the token => no internet connection');
+//     }

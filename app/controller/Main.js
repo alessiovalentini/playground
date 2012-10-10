@@ -1,10 +1,16 @@
 Ext.define('Kio.controller.Main', {
 	extend: 'Ext.app.Controller',
 	
+	// connection checker (under sdk/src/ux/util)
+	requires: [
+        'Ext.ux.util.OnlineManager'
+    ],
+    // connection checker
+
 	config: {
 		refs: {
-			mainTabPanel: 'kio_main_tabPanel',
-			// showReportPanel : 'kio_showReport_panel',
+			mainTabPanel: 'kio_main_tabPanel',				// the connection manager is attached to the main panel
+			// showReportPanel : 'kio_showReport_panel',	// not used anymore. now using big make report button
 			newsDetailPanel: 'kio_newsDetail_panel',
 			newsListPanel: 'kio_newsList_list',
 			makeReportButton: '#kio_makeReport_button',
@@ -18,9 +24,16 @@ Ext.define('Kio.controller.Main', {
 			settingFormPanel: 'kio_setting_panel',
 			settingTabBarButton: 'tabbar button[title=Setting]',
 			regularGround: '#kio_regularGround_selectfield',
-			makeReportHomeButton: '#kio_home_makeAReport_button'
+			makeReportHomeButton: '#kio_home_makeAReport_button'			
 		},
 		control: {
+			// connection checker
+			mainTabPanel: {
+				// the connection manager is attached at the initialization of the main panel
+				initialize: 'checkConnection'     
+			},
+			// connection checker
+
 			newsListPanel: {
 				select: 'showNewsDetail'
 			},
@@ -126,7 +139,6 @@ Ext.define('Kio.controller.Main', {
 		// change date / time format to match the one we expet in SF: "12/02/2012 12:34"
 		var pickedDate = formValues['reportDate'];
 		formValues['reportDate'] = pickedDate.getDate() + '/' + pickedDate.getMonth() + '/' + pickedDate.getFullYear() + ' ' + pickedDate.getHours() + ':' + pickedDate.getMinutes();
-		console.log(formValues);
 
 		// groundId must be the actual id and not the label => fix this
 		var groundStore = Ext.getStore('Ground');
@@ -154,6 +166,8 @@ Ext.define('Kio.controller.Main', {
 	            if( response == 'Success' ){
 	            	// actual success response => delete the object and show success message / go to different screen
 	            	alert('Thanks! Your report has been submitted');
+	            	console.log('Report submitted successfully: ');
+	            	console.log(formValues);
 	            	// go to the home screen	      
 					var mainPanel = mainController.getMainTabPanel()	// get main tab panel
 	            	mainPanel.setActiveItem(0);		      				// set that the active item is the first (home)
@@ -277,5 +291,92 @@ Ext.define('Kio.controller.Main', {
         if(regularGroundLocalStorageValue != null){
 			regularGround.setPlaceHolder(regularGroundLocalStorageValue);        	
         }
+	},
+
+	// connection checker => perform actions on app online or offline
+	checkConnection: function(){
+
+		OnlineManager.setUrl('resources/online/online.php');  
+
+        OnlineManager.on({
+            'onlinechange': function(mode) {
+                
+                if (mode) {
+                    // app back online => - check if there are reports in the local storage that must be sent
+                    //					  - if there are reports, send them in a batch and on post success remove them
+                    //					  - get news ? ... maybe not necessary having the pull to refresh
+
+                    // get report store
+                    var reportsStore = Ext.getStore('Report');
+
+                    //console.log(reportsStore.getCount());  NOT WORKING!!!!!!!!                    
+                    
+                    // iterate through the records and create the batch array
+                    // note: at the end the actual records are in the offlineReports_batch[i]['data']
+                    var offlineReports_batch = [];
+					reportsStore.each(function(report) {
+					   	offlineReports_batch.push(report['data']);
+					});
+
+					console.log(offlineReports_batch);
+					console.log(offlineReports_batch.length);
+
+					// if store has reports try to send them
+					if( offlineReports_batch.length > 0 ){
+
+						// before the report(s) where saved in the raw form object format, not batched and not stringyfied
+						// ex. reportsStore.add( formValues );
+
+						// creating expected sf report batch object
+						var sfReportBatch = {
+							// the only one attribute is the reports batch array
+							reportList: offlineReports_batch
+						};
+
+						console.log(JSON.stringify(sfReportBatch));
+
+						// make the call and send the records
+						// Kio.app.sf to get the client sf object
+						Kio.app.sf.client.apexrest( '/kio/v1.0/newReport', function(response){  // call to https://<instance_url>/services/apexrest/kio/v1.0/getNews
+				            // success in the case of a post can be either an error return message or the actual response
+				            
+				            if( response == 'Success' ){
+				            	console.log('Report submitted successfully after the app is back online!');
+				            	// delete reports from local storage
+				            	reportsStore.removeAll();
+				            	reportsStore.sync();
+
+				            }else{
+				            	// error =>
+				            	console.log('ERROR (success/else branch) after the app is back online:');
+				            	console.log(response);
+				            }
+
+				        }, function(response){
+				            // error
+				            
+				            if( response['responseText'].search("cURL error 6: Couldn't resolve host") === 0 ){
+				            	// error: No internet connectivity (the responseText contains that string) => saving locally the report
+				            	console.log('Still no internet connectivity after the app is back online');
+				            }else{
+				            	// any other possible error?
+				            }
+
+				        }, 'POST', JSON.stringify(sfReportBatch), null);	// post payload (must stringify the object)
+
+	                    console.log('App back online');
+                	}else{
+                		console.log('app is back online but thre are not reports to send');
+                	}
+                } else {
+                    // app offline => show banner that alerts the user
+
+
+                    console.log('App offline');
+                }
+            }
+        });
+
+        OnlineManager.start();
 	}
 });
