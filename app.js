@@ -54,7 +54,7 @@ var App = new Ext.application({
         // **** AUTHENTICATION AND LOADING ****                 
 
         // the salesforce and salesforce.client object will be available across the app accessing it with "Kio.app.sf"
-        this.sf = new salesforce('web_app','sandbox');  
+        this.sf = new salesforce('mobile_app','sandbox');  
 
         // **** PROBLEM WITH WINDOWS ****   
         // get session_id using refresh_token
