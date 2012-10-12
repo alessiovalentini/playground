@@ -56,16 +56,16 @@ var App = new Ext.application({
         // the salesforce and salesforce.client object will be available across the app accessing it with "Kio.app.sf"
         this.sf = new salesforce('web_app','sandbox');  
 
-        // // **** PROBLEM WITH WINDOWS ****   
-        // // get session_id using refresh_token
-        // this.sf.client.refreshAccessToken(function(response){
-        //     // success
-        //     console.log('got access_token using the refresh_token');
+        // **** PROBLEM WITH WINDOWS ****   
+        // get session_id using refresh_token
+        this.sf.client.refreshAccessToken(function(response){
+            // success
+            console.log('got access_token using the refresh_token');
 
-        //     // set up the new access_token (sessionId) in memory
-        //     Kio.app.sf.setAccessToken(response['access_token']);
-        //     console.log(response['access_token']);
-        // // **** PROBLEM WITH WINDOWS ****   
+            // set up the new access_token (sessionId) in memory
+            Kio.app.sf.setAccessToken(response['access_token']);
+            console.log(response['access_token']);
+        // **** PROBLEM WITH WINDOWS ****   
 
             // **** Once got the access_token LOAD NEWS AT THE STARTUP in Background **** 
             Kio.app.sf.client.apexrest( '/kio/v1.0/getNews', function(response){
@@ -130,19 +130,19 @@ var App = new Ext.application({
 
             // **** LOAD NEWS AT THE STARTUP in Background **** 
 
-        // // **** PROBLEM WITH WINDOWS ****   
-        // },function(response){
-        //     // error getting access_token
-        //     console.log('error getting the access_token using the refresh_token');
-        //     console.log(response);
+        // **** PROBLEM WITH WINDOWS ****   
+        },function(response){
+            // error getting access_token
+            console.log('error getting the access_token using the refresh_token');
+            console.log(response);
 
-        //     if( response['responseText'].search("cURL error 6: Couldn't resolve host") === 0 ){
-        //         // error: No internet connectivity (the responseText contains that string)
-        //         console.log('No internet connectivity => working offline till connectivity is back');
-        //         // *** IMPROVE *** SET A GLOBAL OFFLINE VAR
-        //     }
-        // });
-        // // **** PROBLEM WITH WINDOWS ****         
+            if( response['responseText'].search("cURL error 6: Couldn't resolve host") === 0 ){
+                // error: No internet connectivity (the responseText contains that string)
+                console.log('No internet connectivity => working offline till connectivity is back');
+                // *** IMPROVE *** SET A GLOBAL OFFLINE VAR
+            }
+        });
+        // **** PROBLEM WITH WINDOWS ****         
 
 
         // Loads Grounds data into the Store via the configured proxy
