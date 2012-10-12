@@ -123,79 +123,86 @@ Ext.define('Kio.controller.Main', {
 		// get form values
 		var formValues = this.getMakeReportPanel().getValues();
 
-		// change date / time format to match the one we expet in SF: "12/02/2012 12:34"
-		var pickedDate = formValues['reportDate'];
-		formValues['reportDate'] = pickedDate.getDate() + '/' + pickedDate.getMonth() + '/' + pickedDate.getFullYear() + ' ' + pickedDate.getHours() + ':' + pickedDate.getMinutes();
-		console.log(formValues);
+		var configModel = Ext.create('Kio.model.Report');
+		var errors = configModel.validateReport(formValues);
 
-		// groundId must be the actual id and not the label => fix this
-		var groundStore = Ext.getStore('Ground');
-		var selectedGroundRecord = groundStore.findRecord('groundName',formValues['groundId']);	// *** IMPROVE *** (we can get directly id from the form)
-		
-		if( selectedGroundRecord != null ){
-			// user selected a ground 
+		if(errors != null){ // There are errors so we have to do sth
+			alert(errors);
+		} else {
+			// change date / time format to match the one we expet in SF: "12/02/2012 12:34"
+			var pickedDate = formValues['reportDate'];
+			formValues['reportDate'] = pickedDate.getDate() + '/' + pickedDate.getMonth() + '/' + pickedDate.getFullYear() + ' ' + pickedDate.getHours() + ':' + pickedDate.getMinutes();
+			console.log(formValues);
 
-			formValues['groundId'] = selectedGroundRecord.data['recordId'];
+			// groundId must be the actual id and not the label => fix this
+			var groundStore = Ext.getStore('Ground');
+			var selectedGroundRecord = groundStore.findRecord('groundName',formValues['groundId']);	// *** IMPROVE *** (we can get directly id from the form)
+			
+			if( selectedGroundRecord != null ){
+				// user selected a ground 
 
-			// submit reports in bach (as an array)
-			var reports_batch = new Array();
-			reports_batch.push(formValues);
+				formValues['groundId'] = selectedGroundRecord.data['recordId'];
 
-			// creating expected sf report batch object
-			var sfReportBatch = {
-				// the only one attribute is the reports batch array
-				reportList: reports_batch
-			};
+				// submit reports in bach (as an array)
+				var reports_batch = new Array();
+				reports_batch.push(formValues);
 
-			// Kio.app.sf to get the client sf object
-			Kio.app.sf.client.apexrest( '/kio/v1.0/newReport', function(response){  // call to https://<instance_url>/services/apexrest/kio/v1.0/getNews
-	            // success in the case of a post can be either an error return message or the actual response
-	            
-	            if( response == 'Success' ){
-	            	// actual success response => delete the object and show success message / go to different screen
-	            	alert('Thanks! Your report has been submitted');
-	            	// go to the home screen	      
-					var mainPanel = mainController.getMainTabPanel()	// get main tab panel
-	            	mainPanel.setActiveItem(0);		      				// set that the active item is the first (home)
-	            	Ext.Viewport.setActiveItem(mainPanel);				// set the active item for the viewport => is the tab main panel with home panel selected
+				// creating expected sf report batch object
+				var sfReportBatch = {
+					// the only one attribute is the reports batch array
+					reportList: reports_batch
+				};
 
-	            }else{
-	            	// error 
-	            	console.log('success/else: ' + response);
-	            }
+				// Kio.app.sf to get the client sf object
+				Kio.app.sf.client.apexrest( '/kio/v1.0/newReport', function(response){  // call to https://<instance_url>/services/apexrest/kio/v1.0/getNews
+		            // success in the case of a post can be either an error return message or the actual response
+		            
+		            if( response == 'Success' ){
+		            	// actual success response => delete the object and show success message / go to different screen
+		            	alert('Thanks! Your report has been submitted');
+		            	// go to the home screen	      
+						var mainPanel = mainController.getMainTabPanel()	// get main tab panel
+		            	mainPanel.setActiveItem(0);		      				// set that the active item is the first (home)
+		            	Ext.Viewport.setActiveItem(mainPanel);				// set the active item for the viewport => is the tab main panel with home panel selected
 
-	        }, function(response){
-	            // error(S)
-	            
-	            if( response['responseText'].search("cURL error 6: Couldn't resolve host") === 0 ){
-	            	// error: No internet connectivity (the responseText contains that string) => saving locally the report
-	            	console.log('No internet connectivity => saving locally the report');
-	            	// **** set retry global variable !?!?!?!?!
+		            }else{
+		            	// error 
+		            	console.log('success/else: ' + response);
+		            }
 
-					// generating an id for the local storage runtime (using the # of millisecond from year 1970)
-					formValues['recordId'] = Date.now();	
-					// get store and add record
-					var reportsStore = Ext.getStore('Report');
-					// save the raw form not stringyfied
-					reportsStore.add( formValues );
-					reportsStore.sync();
+		        }, function(response){
+		            // error(S)
+		            
+		            if( response['responseText'].search("cURL error 6: Couldn't resolve host") === 0 ){
+		            	// error: No internet connectivity (the responseText contains that string) => saving locally the report
+		            	console.log('No internet connectivity => saving locally the report');
+		            	// **** set retry global variable !?!?!?!?!
 
-					alert('Thanks! Your report will be submitted as soon as the Internet connectivity will be available');
-					// go to the home screen
-					var mainPanel = mainController.getMainTabPanel()	// get main tab panel
-	            	mainPanel.setActiveItem(0);		      				// set that the active item is the first (home)
-	            	Ext.Viewport.setActiveItem(mainPanel);				// set the active item for the viewport => is the tab main panel with home panel selected
+						// generating an id for the local storage runtime (using the # of millisecond from year 1970)
+						formValues['recordId'] = Date.now();	
+						// get store and add record
+						var reportsStore = Ext.getStore('Report');
+						// save the raw form not stringyfied
+						reportsStore.add( formValues );
+						reportsStore.sync();
 
-	            }else{
-	            	// error saving the record (for example wrong groundID)
-	            	console.log('Error saving the object in SF: ' + response['responseText']);
-	            }
+						alert('Thanks! Your report will be submitted as soon as the Internet connectivity will be available');
+						// go to the home screen
+						var mainPanel = mainController.getMainTabPanel()	// get main tab panel
+		            	mainPanel.setActiveItem(0);		      				// set that the active item is the first (home)
+		            	Ext.Viewport.setActiveItem(mainPanel);				// set the active item for the viewport => is the tab main panel with home panel selected
 
-	        }, 'POST', JSON.stringify(sfReportBatch), null);	// post payload (must stringify the object)
-		
-		}else{
-			// user must select a ground
-			alert('A ground is necessary in order to submit a report');
+		            }else{
+		            	// error saving the record (for example wrong groundID)
+		            	console.log('Error saving the object in SF: ' + response['responseText']);
+		            }
+
+		        }, 'POST', JSON.stringify(sfReportBatch), null);	// post payload (must stringify the object)
+			
+			}else{
+				// user must select a ground
+				alert('A ground is necessary in order to submit a report');
+			}
 		}
 	},
 	backHomeFromTheSameTabPanel: function(){
@@ -236,34 +243,41 @@ Ext.define('Kio.controller.Main', {
 		// get form values
 		var formValues = this.getSettingFormPanel().getValues();
 
-		// load config load storage
-		var configStore = Ext.getStore('Config');
-		var configValues = configStore.getAt(0);
-	
-		// save in the config local storage the form values
-		configValues.set('address',formValues['address']);
-		configValues.set('email',formValues['email']);
-		configValues.set('name',formValues['name']);
-		configValues.set('phone',formValues['phone']);
-		// for is saving chackbox as 1 or 0 and not boolean like our model does
-		if( formValues['currentLocation'] === 1 )
-			configValues.set('currentLocation',true);
-		else
-			configValues['data']['currentLocation'] = false;
-		if( formValues['pushNotifications'] === 1 )
-			configValues.set('pushNotifications',true);
-		else
-			configValues.set('pushNotifications',false);
-		// saving the regular ground measn saving directly the name so the report form will be prepopulated with the name
-		configValues.set('regularGround',formValues['regularGround']);
-		// update the record
-		configStore.sync();
+		var configModel = Ext.create('Kio.model.Config');
+		var errors = configModel.validateConfig(formValues);
 
-		// when the user starts a report the relative fields must be already populated
+		if(errors != null){ // There are errors so we have to do sth
+			alert(errors);
+		} else {
+			// load config load storage
+			var configStore = Ext.getStore('Config');
+			var configValues = configStore.getAt(0);
+		
+			// save in the config local storage the form values
+			configValues.set('address',formValues['address']);
+			configValues.set('email',formValues['email']);
+			configValues.set('name',formValues['name']);
+			configValues.set('phone',formValues['phone']);
+			// for is saving chackbox as 1 or 0 and not boolean like our model does
+			if( formValues['currentLocation'] === 1 )
+				configValues.set('currentLocation',true);
+			else
+				configValues['data']['currentLocation'] = false;
+			if( formValues['pushNotifications'] === 1 )
+				configValues.set('pushNotifications',true);
+			else
+				configValues.set('pushNotifications',false);
+			// saving the regular ground measn saving directly the name so the report form will be prepopulated with the name
+			configValues.set('regularGround',formValues['regularGround']);
+			// update the record
+			configStore.sync();
 
-		// go back to the home page
-		var mainTab = this.getMainTabPanel();
-		mainTab.setActiveItem(0);
+			// when the user starts a report the relative fields must be already populated
+
+			// go back to the home page
+			var mainTab = this.getMainTabPanel();
+			mainTab.setActiveItem(0);
+		}
 	},
 	loadSettingFormValues: function() {
 		// Gets the config record
