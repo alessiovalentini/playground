@@ -27,7 +27,7 @@ var App = new Ext.application({
     // },
 
     icon: {
-        '57': 'resources/icons/Icon.png',				   // A list of the icons used when users add the app to their home screen on iOS devices
+        '57': 'resources/icons/Icon.png',				    // A list of the icons used when users add the app to their home screen on iOS devices
         '72': 'resources/icons/Icon~ipad.png',
         '114': 'resources/icons/Icon@2x.png',
         '144': 'resources/icons/Icon~ipad@2x.png'
@@ -66,151 +66,101 @@ var App = new Ext.application({
                 // },
         // });
         
-
         // Destroy the #appLoadingIndicator element
         // Ext.fly('appLoadingIndicator').destroy();
-        
-        // **** AUTHENTICATION AND LOADING ****                 
 
-        // the salesforce and salesforce.client object will be available across the app accessing it with "Kio.app.sf"
+
+        
+        /***************************************************************************************
+         *                                                                                     *
+         *  instanciate (should be singleton obj) the salesforce connection library            *
+         *                                                                                     *
+         *  sf will be availble across the whole app accessing 'Kio.app.sf'                    *
+         *                                                                                     *
+         ***************************************************************************************/
 
         this.sf = new salesforce('web_app','sandbox');  
 
-        // get session_id using refresh_token
-        this.sf.client.refreshAccessToken(function(response){
-            // success
-            console.log('got access_token using the refresh_token');
+        /***************************************************************************************
+         *                                                                                     *
+         *  on app start always get a new refreshed token. then go on with the app             *
+         *                                                                                     *
+         ***************************************************************************************/
 
-            // set up the new access_token (sessionId) in memory
-            Kio.app.sf.setAccessToken(response['access_token']);
-            console.log(response['access_token']);
+        // cache this.sf in order to access it quickly
+        var sf_cache = this.sf;
 
-            // **** Once got the access_token LOAD NEWS AT THE STARTUP in Background **** 
-            Kio.app.sf.client.apexrest( '/kio/v1.0/getNews', function(response){
-                // success => save news in the localstorage
-                var newsStore = Ext.getStore('News');
-                
-                //valid response is coming from SF as a string that must be parsed in order to get the right JS array of object
-                var decoded_response = JSON.parse(response);
-                //console.log(decoded_response);
+        // get session_id using refresh_token | NOTE: the call is syncronous (see forcetk.refreshAccessToken())
+        this.sf.client.refreshAccessToken(function(success_response){
+            console.log('- success_token');
+            // set the new token
+            sf_cache.setAccessToken(success_response['access_token']);
 
-                // remove all
-                newsStore.removeAll();
-                newsStore.sync();
-                // write all from sf
-                for( var i = 0; i < decoded_response.length; i++ ){                
-                    if( newsStore.find('recordId',decoded_response[i]['recordId']) === -1 ){
-                        newsStore.add(decoded_response[i]);                    
-                    }
-                }
-                newsStore.sync();
-
-                
-                // for( var i = 0; i < newsStore.getTotalCount() ; i++){
-                //     console.log(newsStore.getAt(i));
-                // }
-
-                // set one as Other instead of Latest
-                // var record = newsStore.findRecord('recordId','a01J0000003o6suIAA');
-                // console.log(record);
-                // record.set('type','Other');
-                // newsStore.sync();            
-
-                console.log('news loaded and saved successfully');
-
-                // *** IMPROVE *** Shouldn't load grounds all the time - 
-                // but looks like the token is not registered when the call to get grounds is fired so is failing loading the grounds
-                // **** LOAD GROUNDS ****
-                Kio.app.sf.client.apexrest( '/kio/v1.0/getGrounds', function(response){
-                    // custom parsing => match model fields
-                    var grounds = new Array();
-                    for(var i in JSON.parse(response)){
-                        
-                        // recordId, groundName
-                        var ground = {
-
-                            recordId: JSON.parse(response)[i]['Id'],
-                            groundName: JSON.parse(response)[i]['Name']
-
-                        }
-                        grounds.push(ground);
-                    }
-                    
-                    // array of reports ready to be used in sencha => save grounds in the local storage
-                    console.log('loaded grounds:');
-                    console.log(grounds); 
-
-                    // get the ground store
-                    var ground_store = Ext.getStore('Ground');
-
-                    //remove all
-                    ground_store.removeAll();
-                    ground_store.sync();
-                    // add new/updated grounds
-                    for(var i in grounds){
-                        ground_store.add(grounds[i]);
-                    }
-                    ground_store.sync();
-
-
-                }, function(response){
-                    console.log('error loading grounds:');
-                    console.log(response);
-                });
-                // **** LOAD GROUNDS ****
-
-            }, function(response){
-                // error
-                console.log('load news error: ');
-                console.log(response);
-
-                if( response['status'] === 404 ){
-                    // token must be refreshed
-                    Kio.app.sf.client.refreshAccessToken(function(response){
-                        // success
-                        console.log('token refreshed / 2');
-                        console.log(response);
-
-                        // set up the new token
-                        Kio.app.sf.client.access_token = response['access_token'];
-                        // *** IMPROVE *** make another call in order to get the news ????? + What about grounds
-                        
-                    },function(response){
-                        // error again => no internet connectivity => *** IMPROVE ***
-                        console.log('token refresh error / 2');
-                        console.log(response);
-                    });
-                }else{
-                    // no internet connectivity => *** IMPROVE ***
-                    console.log('not a problem with the token => no internet connection');
-                }
-
-            }, 'GET', null, null);
-
-            // **** LOAD NEWS AT THE STARTUP in Background **** 
-
-        },function(response){
-            // error getting access_token
-            console.log('error getting the access_token using the refresh_token');
-            console.log(response);
-
-            if( response['responseText'].search("cURL error 6: Couldn't resolve host") === 0 ){
-                // error: No internet connectivity (the responseText contains that string)
-                console.log('No internet connectivity => working offline till connectivity is back');
-                // *** IMPROVE *** SET A GLOBAL OFFLINE VAR
+        },function(error_response){
+            // if error means error in the refresh_token OR no internet connection            
+            
+            if( error_response['responseText'].search("cURL error 6: Couldn't resolve host") === 0 ){
+                // error: No internet connectivity
+                console.log('- no internet connectivity: working offline till connectivity is back');
+            }else{
+                // error refreshing the access_token
+                console.log('- app online but error refreshing access_token');
             }
+            console.log(error_response);
         });
 
-        // Loads Grounds data into the Store via the configured proxy
+        /***************************************************************************************
+         *                                                                                     *
+         *  get data from salesforce                                                           *
+         *                                                                                     *
+         ***************************************************************************************/        
+
+        // get news
+        this.sf.getNews(function(success_response){                     // anonymous function or move down with a news_success() function
+            // success => save news into local storage
+            var newsModel = Ext.create('Kio.model.News');
+            var n = newsModel.saveNews(JSON.parse(success_response));   // passing the PARSED list of news to be saved into local storage
+                                                                        // sf is sending the same model as defined in the app
+            console.log('- saved ' + n + ' news into the local storage');
+
+        }, function(error_response){
+            // token failing or no internet connection
+            
+            if( error_response['status'] === 404 ){
+                // token must be refreshed
+                console.log('- access_token error while getting news. access_token must be refreshed');
+                // *** IMPROVE *** get new access_token
+            }else{
+                // no internet connectivity
+                console.log('- no internet connectivity while getting news: working offline till connectivity is back');
+            }
+
+            console.log(error_response);
+        });
+
+        /***************************************************************************************
+         *                                                                                     *
+         *  load local storages                                                                *
+         *                                                                                     *
+         ***************************************************************************************/
+
+        // grounds
         var groundsStore = Ext.getStore('Ground');
         groundsStore.load();
-
-        // Load old reports saved into the store (in case we did not send them and shut down the app)
+        // old reports that will be sent when 'app back online' function will run
         var reportsStore = Ext.getStore('Report');
         reportsStore.load();
 
-        // **** AUTHENTICATION AND LOADING ****         
 
+        /***************************************************************************************
+         *                                                                                     *
+         *  load settings and start the app                                                    *
+         *                                                                                     *
+         *  first start loads:                                                                 *
+         *  - terms and condition + use geolocation user screens                               *
+         *  - grounds                                                                          *
+         *                                                                                     *
+         ***************************************************************************************/
 
         // Using a delayedTask, after x ms
         Ext.create('Ext.util.DelayedTask', function() {
@@ -224,6 +174,7 @@ var App = new Ext.application({
             
             // *** No config stored before in the localStorage => the user runs the app for the first time ***
             if(recordIdFromLocalStorage === -1){ 
+                
                 // The data that is going to be sync
                 var persistData = {
                     recordId: configRecordId,
@@ -236,50 +187,30 @@ var App = new Ext.application({
                 // loading terms and conditions screen + geolocation preferences the first time the user lunches the app
                 loadTermsAndConditions();
 
-                // first time the user launch the app the grounds are loaded
-                // **** LOAD GROUNDS ****
-                Kio.app.sf.client.apexrest( '/kio/v1.0/getGrounds', function(response){
-                    // custom parsing => match model fields
-                    var grounds = new Array();
-                    for(var i in JSON.parse(response)){
-                        
-                        // recordId, groundName
-                        var ground = {
+                // load grounds (just first time the app is installed - when the app is updated (see below))                
+                Kio.app.sf.getGrounds(function(success_response){
+                    // success => save grounds into local storage
+                    var grounds_model = Ext.create('Kio.model.Ground');
+                    var n = grounds_model.saveGrounds(JSON.parse(success_response));
 
-                            recordId: JSON.parse(response)[i]['Id'],
-                            groundName: JSON.parse(response)[i]['Name']
+                    // console.log('got ' + success_response.length + 'grounds from sf')                                                                               
+                    console.log('- saved ' + n + ' grounds into the local storage');
 
-                        }
-                        grounds.push(ground);
-                    }
-                    
-                    // array of reports ready to be used in sencha => save grounds in the local storage
-                    console.log('loaded grounds:');
-                    console.log(grounds); 
-
-                    // get the ground store
-                    var ground_store = Ext.getStore('Ground');
-
-                    //remove all
-                    ground_store.removeAll();
-                    ground_store.sync();
-                    // add new/updated grounds
-                    for(var i in grounds){
-                        ground_store.add(grounds[i]);
-                    }
-                    ground_store.sync();
-
-
-                }, function(response){
-                    console.log('error loading grounds:');
-                    console.log(response);
+                }, function(error_response){
+                    // token failing or no internet connection
+                    console.log('- error getting grounds');
+                    console.log(error_response);
                 });
-                // **** LOAD GROUNDS ****
 
             } else {
-                // *** successive starts of the application ***
+                
+                /***************************************************************************************
+                 *                                                                                     *
+                 *  second+ app's startup                                                              *
+                 *                                                                                     *
+                 ***************************************************************************************/
 
-                // set the location
+                // set the location ====> remove and get location when hitting send report button
                 var geo = Ext.create('Kio.view.UpdateLocation');
                 geo.updateLocation();
             }
@@ -289,45 +220,26 @@ var App = new Ext.application({
 
     onUpdated: function() {
         
-        // just when the user updates the app the grounds will be updated
-        // **** LOAD GROUNDS ****
-        Kio.app.client.apexrest( '/kio/v1.0/getGrounds', function(response){
-            // custom parsing => match model fields
-            var grounds = new Array();
-            for(var i in JSON.parse(response)){
-                
-                // recordId, groundName
-                var ground = {
+        /***************************************************************************************
+         *                                                                                     *
+         *  on app update reload grounds from salesforce                                       *
+         *                                                                                     *
+         ***************************************************************************************/
 
-                    recordId: JSON.parse(response)[i]['Id'],
-                    groundName: JSON.parse(response)[i]['Name']
+        this.sf.getGrounds(function(success_response){
+            // success => save grounds into local storage
+            var grounds_model = Ext.create('Kio.model.Ground');
+            var n = grounds_model.saveGrounds(JSON.parse(success_response));
 
-                }
-                grounds.push(ground);
-            }
-            
-            // array of reports ready to be used in sencha => save grounds in the local storage
-            console.log('loaded grounds:');
-            console.log(grounds); 
+            // console.log('got ' + success_response.length + 'grounds from sf')                                                                               
+            console.log('- saved ' + n + ' grounds into the local storage');
 
-            // get the ground store
-            var ground_store = Ext.getStore('Ground');
-
-            //remove all
-            ground_store.removeAll();
-            ground_store.sync();
-            // add new/updated grounds
-            for(var i in grounds){
-                ground_store.add(grounds[i]);
-            }
-            ground_store.sync();
-
-
-        }, function(response){
-            console.log('error loading grounds' + response);
+        }, function(error_response){
+            // token failing or no internet connection
+            console.log('- error getting grounds');
+            console.log(error_response);
         });
-        // **** LOAD GROUNDS ****
-
+    
 
         Ext.Msg.confirm(
             "Application Update",
@@ -340,37 +252,5 @@ var App = new Ext.application({
         );
     }    
 
-    // functions defined here are accessible via Kio.app.<function_name>
+    // note that functions defined here are accessible via Kio.app.<function_name>
 });
-
-
-
-
-// this.sf.client.apexrest( '/kio/v1.0/getReports', function(response){
-   
-//     // custom parsing => match model fields
-//     var reports = new Array();
-//     for(var i in JSON.parse(response)){
-        
-//         // fields: ['recordId', 'groundId', 'reportDate', 'description','name','phone','email','address']
-//         var report = {
-            
-//             recordId: JSON.parse(response)[i]['Id'],
-//             groundId: '',
-//             reportDate: JSON.parse(response)[i]['When_did_it_happen__c  '],
-//             description: '',
-//             phone: '',
-//             email: '',
-//             address: ''
-//         }
-//         reports.push(report);
-
-//         // console.log(JSON.parse(response)[i]);
-//     }
-    
-//     // array of reports ready to be used in sencha
-//     console.log(reports);
-
-// }, function(){
-//     console.log(response);
-// });

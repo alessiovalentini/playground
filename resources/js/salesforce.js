@@ -1,4 +1,8 @@
-// object definition and initialization 
+/******************************************************************************************************** 
+*                                                                                                      *
+*  object definition and initialization                                                                *
+*                                                                                                      *
+********************************************************************************************************/
 
 function salesforce(app_type, env){
 	
@@ -50,7 +54,15 @@ function salesforce(app_type, env){
 	} 	
 }
 
-// methods
+/******************************************************************************************************** 
+*                                                                                                      *
+*  object methods 						                                                               *
+*                                                                                                      *
+********************************************************************************************************/
+
+/**
+ * return a new forcetk client object set up with salesforce connection parameters chosen by the user
+ */
 
 salesforce.prototype.getClient = function(app_type){
 
@@ -79,6 +91,7 @@ salesforce.prototype.setAccessToken = function(access_token){
 }
 
 salesforce.prototype.getAuthenticationParameters = function(){
+
 	return {
 
 		client_id : this.client_id,	
@@ -89,76 +102,40 @@ salesforce.prototype.getAuthenticationParameters = function(){
 	};
 };
 
-// // call
-// sf.getNews(function(success_response){
+/**
+ * abstraction wrapper for our custom webservice action 'getNews' 
+ *
+ * callout to https://<instance_url>/services/apexrest/kio/v1.0/getNews
+ *
+ */
 
+salesforce.prototype.getNews = function(callback, error){
 
+	this.client.apexrest( '/kio/v1.0/getNews', callback, error, 'GET', null, null);
+};
 
-// },function(error_response){
+/**
+ * abstraction wrapper for our custom webservice action 'getGrounds' 
+ *
+ * callout to https://<instance_url>/services/apexrest/kio/v1.0/getGrounds
+ *
+ */
 
+salesforce.prototype.getGrounds = function(callback, error){
 
-// });
+	this.client.apexrest( '/kio/v1.0/getGrounds', callback, error, 'GET', null, null);
+};
 
+/**
+ * abstraction wrapper for our custom webservice action 'newReport' 
+ *
+ * callout to https://<instance_url>/services/apexrest/kio/v1.0/newReport
+ *
+ * @param report_batch: the NOT STRINGIFIED Array (batch) of reports to send to the SF webservice
+ *
+ */
 
+salesforce.prototype.newReport = function(reports_batch, callback, error){
 
-// sf.newsCallout(function(success_response){
-
-
-// }, function(error_response){
-
-// });
-
-
-
-// salesforce.prototype.newsCallout = function(successResponse, errorResponse){
-//     Kio.app.sf.client.apexrest( '/kio/v1.0/getNews', successResponse,errorResponse, 'GET', null, null);
-// }
-
-// salesforce.prototype.getNews = function(){
-
-// 	// success => save news in the localstorage
-//     var newsStore = Ext.getStore('News');
-    
-//     //valid response is coming from SF as a string that must be parsed in order to get the right JS array of object
-//     var decoded_response = JSON.parse(response);
-//     //console.log(decoded_response);
-
-//     // remove all
-//     newsStore.removeAll();
-//     newsStore.sync();
-//     // write all from sf
-//     for( var i = 0; i < decoded_response.length; i++ ){                
-//         if( newsStore.find('recordId',decoded_response[i]['recordId']) === -1 ){
-//             newsStore.add(decoded_response[i]);                    
-//         }
-//     }
-//     newsStore.sync();       
-
-//     console.log('news loaded and saved successfully');
-	
-// }
-
-// 	// error
-//     console.log('load news error: ');
-//     console.log(response);
-
-//     if( response['status'] === 404 ){
-//         // token must be refreshed
-//         Kio.app.sf.client.refreshAccessToken(function(response){
-//             // success
-//             console.log('token refreshed / 2');
-//             console.log(response);
-
-//             // set up the new token
-//             Kio.app.sf.client.access_token = response['access_token'];
-//             // *** IMPROVE *** make another call in order to get the news ????? + What about grounds
-            
-//         },function(response){
-//             // error again => no internet connectivity => *** IMPROVE ***
-//             console.log('token refresh error / 2');
-//             console.log(response);
-//         });
-//     }else{
-//         // no internet connectivity => *** IMPROVE ***
-//         console.log('not a problem with the token => no internet connection');
-//     }
+	this.client.apexrest( '/kio/v1.0/newReport', callback, error, 'POST', JSON.stringify(reports_batch), null);
+};

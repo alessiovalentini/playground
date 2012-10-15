@@ -53,7 +53,8 @@ Ext.define('Kio.controller.Main', {
 				tap: 'showMakeReport'
 			},
 			makeReportHomeButton:{
-				tap: 'showReport'	
+				// tap: 'showReport'	
+				tap: 'showMakeReport'
 			},
 			cancelReportButton: {
 				tap: 'backHomeFromAnotherPanel'
@@ -92,6 +93,13 @@ Ext.define('Kio.controller.Main', {
 		mainTab.setActiveItem(1);
 	},
 	showMakeReport: function(){
+
+		// if( config.firstReport == true){
+		// 	this.showReport();
+		// 	config.firstReport = false;
+		// }else
+		// {
+
 		// If it was created before, just show the panel otherwise it creates it
 		var makeReportPanel = this.getMakeReportPanel();
 		if(makeReportPanel === undefined){
@@ -100,7 +108,13 @@ Ext.define('Kio.controller.Main', {
 			// add and set as an active view
 			Ext.Viewport.add(makeReportPanel);
 		}
-		// populate the form values with the available values from the user Config in the local storage
+		
+		/******************************************************************************************************* 
+		*                                                                                                      *
+		*  populate the form values with the available values from the user Config in the local storage        *
+		*                                                                                                      *
+		********************************************************************************************************/
+		
 		var configStore = Ext.getStore('Config');
 		var settings = configStore.getAt(0);
 
@@ -109,12 +123,13 @@ Ext.define('Kio.controller.Main', {
 		var groundRecord = groundStore.findRecord('recordId',settings['data']['regularGround']);
 		var groundName;
 
-		// check if a 
+		// check if graundRecord is undefined => this because it's not possible to get ['data'] of undefined
 		if( groundRecord != null )
-			groundName = groundRecord['data']['groundName'];	// not possible to get ['data'] of undefined
+			groundName = groundRecord['data']['groundName'];
 		else
 			groundName = null;
 
+		// set the loaded values (necessary to pass an object that maps the values)
 		makeReportPanel.setValues({
 			address: settings['data']['address'],
 			phone: settings['data']['phone'],
@@ -123,18 +138,30 @@ Ext.define('Kio.controller.Main', {
 			name: settings['data']['name']
 		});
 
-		// Show the new view
+		// finally show the new view
 		makeReportPanel.show();
 		Ext.Viewport.setActiveItem(makeReportPanel);
+		
+		//}	
 	},
 	submitReport: function(){
-		// Submit the report to SF
+		
+		/************************************************************************************************************************************* 
+		*                                                                                    							                     *
+		*	Submit the report to SF: 																										 *
+		*	- save locally report 																		   									 *
+		*   - get batch of reports 																											 *
+		*   - try send batch to sf 																											 *
+		*   	- if success => remove reports from local storage, alert success, go to home screen											 *
+		*		- if error   => simply alert error, go to home screen => the reports will be submitted later on when connection will be back *                                                                                                *
+		**************************************************************************************************************************************/
 
 		// cache this
 		var mainController = this;
 		
 		// get form values
-		var formValues = this.getMakeReportPanel().getValues();
+		var formPanel = this.getMakeReportPanel();
+		var formValues = formPanel.getValues();
 
 		// change date / time format to match the one we expet in SF: "12/02/2012 12:34"
 		var pickedDate = formValues['reportDate'];
@@ -144,68 +171,77 @@ Ext.define('Kio.controller.Main', {
 		var groundStore = Ext.getStore('Ground');
 		var selectedGroundRecord = groundStore.findRecord('groundName',formValues['groundId']);	// *** IMPROVE *** (we can get directly id from the form)
 		
+		// user must select a ground *** IMPROVE *** user must enter all the infos
 		if( selectedGroundRecord != null ){
 			// user selected a ground 
+			formValues['groundId'] = selectedGroundRecord.data['recordId'];	 // set the recordId (sf id) instead of the groundName *** IMPROVE *** related to above
 
-			formValues['groundId'] = selectedGroundRecord.data['recordId'];
+			// save the new report into local storage
 
-			// submit reports in bach (as an array)
-			var reports_batch = new Array();
-			reports_batch.push(formValues);
+			// generating an id for the local storage runtime (using the # of millisecond from year 1970)
+			formValues['recordId'] = Date.now();	
+			var reportsStore = Ext.getStore('Report');
+			// save the raw form not stringyfied
+			reportsStore.add( formValues );
+			reportsStore.sync();
 
-			// creating expected sf report batch object
-			var sfReportBatch = {
-				// the only one attribute is the reports batch array
-				reportList: reports_batch
-			};
+			// get the batched list of reports in sf webservice expected format
+			var reports_model = Ext.create('Kio.model.Report');
+			// get the batch of reports from the local storage, ready to be sent to salesforce
+			var reports_batch = reports_model.getReportsBatch();
 
-			// Kio.app.sf to get the client sf object
-			Kio.app.sf.client.apexrest( '/kio/v1.0/newReport', function(response){  // call to https://<instance_url>/services/apexrest/kio/v1.0/getNews
-	            // success in the case of a post can be either an error return message or the actual response
-	            
-	            if( response == 'Success' ){
-	            	// actual success response => delete the object and show success message / go to different screen
-	            	alert('Thanks! Your report has been submitted');
-	            	console.log('Report submitted successfully: ');
-	            	console.log(formValues);
-	            	// go to the home screen	      
+			// try to send the batch of reports to sf
+			Kio.app.sf.newReport( reports_batch , function(success_response){
+				// success => remove sent reports from local storage and alert user
+
+				if( success_response == 'Success' ){			    	
+			    	// delete reports from local storage
+			    	reportsStore.removeAll();
+			    	reportsStore.sync();
+
+			    	// show alert to the user
+			    	alert('Thanks! Your report has been submitted');
+
+			    	// clear form
+			    	formPanel.reset();
+			  
+					// go back to main tab screen
 					var mainPanel = mainController.getMainTabPanel()	// get main tab panel
-	            	mainPanel.setActiveItem(0);		      				// set that the active item is the first (home)
-	            	Ext.Viewport.setActiveItem(mainPanel);				// set the active item for the viewport => is the tab main panel with home panel selected
+		        	mainPanel.setActiveItem(0);		      				// set that the active item is the first (home)
+		        	Ext.Viewport.setActiveItem(mainPanel);				// set the active item for the viewport => is the tab main panel with home panel selected
 
-	            }else{
-	            	// error 
-	            	console.log('success/else: ' + response);
-	            }
+			    	console.log('- ' + reports_batch['reportList'].length + ' report(s) submitted successfully to salesforce');
+			    	console.log(reports_batch);
+			    
+			    }else{
+			    	// error =>
+			    	console.log('- unmanaged error:');
+			    	console.log(success_response);
+			    }
 
-	        }, function(response){
-	            // error(S)
-	            
-	            if( response['responseText'].search("cURL error 6: Couldn't resolve host") === 0 ){
-	            	// error: No internet connectivity (the responseText contains that string) => saving locally the report
-	            	console.log('No internet connectivity => saving locally the report');
-	            	// **** set retry global variable !?!?!?!?!
+			}, function(error_response){
+				// error submitting reports
 
-					// generating an id for the local storage runtime (using the # of millisecond from year 1970)
-					formValues['recordId'] = Date.now();	
-					// get store and add record
-					var reportsStore = Ext.getStore('Report');
-					// save the raw form not stringyfied
-					reportsStore.add( formValues );
-					reportsStore.sync();
+				if( error_response['responseText'].search("cURL error 6: Couldn't resolve host") === 0 ){
+			    	// error: No internet connectivity			    	
 
-					alert('Thanks! Your report will be submitted as soon as the Internet connectivity will be available');
-					// go to the home screen
+			    	// show message to the user
+			    	alert('Thanks! Your report will be submitted as soon as the Internet connectivity will be available');
+
+			    	// clear form
+					formPanel.reset();
+
+					// go back to main tab screen
 					var mainPanel = mainController.getMainTabPanel()	// get main tab panel
-	            	mainPanel.setActiveItem(0);		      				// set that the active item is the first (home)
-	            	Ext.Viewport.setActiveItem(mainPanel);				// set the active item for the viewport => is the tab main panel with home panel selected
+		        	mainPanel.setActiveItem(0);		      				// set that the active item is the first (home)
+		        	Ext.Viewport.setActiveItem(mainPanel);				// set the active item for the viewport => is the tab main panel with home panel selected
 
-	            }else{
-	            	// error saving the record (for example wrong groundID)
-	            	console.log('Error saving the object in SF: ' + response['responseText']);
-	            }
+			    	console.log('- no internet connectivity: report saved locally');
 
-	        }, 'POST', JSON.stringify(sfReportBatch), null);	// post payload (must stringify the object)
+			    }else{
+			    	// any other possible error?? wrong token?!!? *** IMPROVE ***
+			    }
+			});
 		
 		}else{
 			// user must select a ground
@@ -228,23 +264,8 @@ Ext.define('Kio.controller.Main', {
 		}
 
 		var mainPanel = this.getMainTabPanel()	// get main tab panel
-    	mainPanel.setActiveItem(0);		      				// set that the active item is the first (home)
-    	Ext.Viewport.setActiveItem(mainPanel);				// set the active item for the viewport => is the tab main panel with home panel selected
-
-		// If it was created before, just show the panel otherwise it creates it
-		// var mainTab = this.getMainTabPanel();
-		// if(mainTab === undefined){
-		// 	// instanciate the view
-		// 	mainTab = Ext.create('Kio.view.Main');
-		// 	// add and set as an active view
-		// 	Ext.Viewport.add(mainTab);
-		// }
-		// // Deselect items from the news list
-		// var newsListPanel = this.getNewsListPanel();
-		// if(newsListPanel != undefined){
-		// 	newsListPanel.deselectAll();
-		// }
-		// Ext.Viewport.setActiveItem(mainTab);
+    	mainPanel.setActiveItem(0);		      	// set that the active item is the first (home)
+    	Ext.Viewport.setActiveItem(mainPanel);	// set the active item for the viewport => is the tab main panel with home panel selected
 	},
 	saveSetting: function(){
 		// get form values
@@ -273,8 +294,6 @@ Ext.define('Kio.controller.Main', {
 		// update the record
 		configStore.sync();
 
-		// when the user starts a report the relative fields must be already populated
-
 		// go back to the home page
 		var mainTab = this.getMainTabPanel();
 		mainTab.setActiveItem(0);
@@ -296,83 +315,78 @@ Ext.define('Kio.controller.Main', {
 	// connection checker => perform actions on app online or offline
 	checkConnection: function(){
 
-		OnlineManager.setUrl('resources/online/online.php');  
+		// set the online.php path
+		OnlineManager.setUrl('resources/online/online.php');  	
 
+		// when connection event is fired
         OnlineManager.on({
+            
+            // mode will be true when app online an false when offline
             'onlinechange': function(mode) {
                 
                 if (mode) {
-                    // app back online => - check if there are reports in the local storage that must be sent
-                    //					  - if there are reports, send them in a batch and on post success remove them
-                    //					  - get news ? ... maybe not necessary having the pull to refresh
+					
+					/********************************************************************************************************************
+	                 *                                                                                     
+	                 *  app back online                                                              
+	                 *                                                                                     
+	                 *	- if there are reports saved in the local storage, batch them up, send them. on success remove them from local storage
+	                 *	- get news ? ... maybe not necessary having the pull to refresh *** IMPROVE ***
+	                 *
+	                 ********************************************************************************************************************/
 
-                    // get report store
-                    var reportsStore = Ext.getStore('Report');
+					// get report store
+					var reportsStore = Ext.getStore('Report');
 
-                    //console.log(reportsStore.getCount());  NOT WORKING!!!!!!!!                    
-                    
-                    // iterate through the records and create the batch array
-                    // note: at the end the actual records are in the offlineReports_batch[i]['data']
-                    var offlineReports_batch = [];
-					reportsStore.each(function(report) {
-					   	offlineReports_batch.push(report['data']);
-					});
+					if( reportsStore.getCount() > 0 ){
+						// reports have been submitted when the app was offline. batch them up and send them to salesforce
 
-					console.log(offlineReports_batch);
-					console.log(offlineReports_batch.length);
+						var reports_model = Ext.create('Kio.model.Report');
+						// get the batch of reports from the local storage, ready to be sent to salesforce
+						var reports_batch = reports_model.getReportsBatch();
 
-					// if store has reports try to send them
-					if( offlineReports_batch.length > 0 ){
+						// send batch of reports to sf
+						Kio.app.sf.newReport( reports_batch , function(success_response){
+							// success => remove sent reports from local storage
 
-						// before the report(s) where saved in the raw form object format, not batched and not stringyfied
-						// ex. reportsStore.add( formValues );
+							if( success_response == 'Success' ){
+						    	console.log('- connection status: ' + reports_batch['reportList'].length + ' report(s) submitted successfully to salesforce after app back online!!!');
+						    	console.log(reports_batch);
+						    	// delete reports from local storage
+						    	reportsStore.removeAll();
+						    	reportsStore.sync();
 
-						// creating expected sf report batch object
-						var sfReportBatch = {
-							// the only one attribute is the reports batch array
-							reportList: offlineReports_batch
-						};
+						    }else{
+						    	// error =>
+						    	console.log('- connection status: ERROR (success/else branch) after app back online:');
+						    	console.log(success_response);
+						    }
 
-						console.log(JSON.stringify(sfReportBatch));
+						}, function(error_response){
+							// error submitting reports
 
-						// make the call and send the records
-						// Kio.app.sf to get the client sf object
-						Kio.app.sf.client.apexrest( '/kio/v1.0/newReport', function(response){  // call to https://<instance_url>/services/apexrest/kio/v1.0/getNews
-				            // success in the case of a post can be either an error return message or the actual response
-				            
-				            if( response == 'Success' ){
-				            	console.log('Report submitted successfully after the app is back online!');
-				            	// delete reports from local storage
-				            	reportsStore.removeAll();
-				            	reportsStore.sync();
+							if( error_response['responseText'].search("cURL error 6: Couldn't resolve host") === 0 ){
+						    	// error: No internet connectivity (the responseText contains that string) => saving locally the report
+						    	console.log('- connection status: still no internet connectivity after app back online');
+						    }else{
+						    	// any other possible error?? wrong token?!!? *** IMPROVE ***
+						    }
+						});
 
-				            }else{
-				            	// error =>
-				            	console.log('ERROR (success/else branch) after the app is back online:');
-				            	console.log(response);
-				            }
+					}else{
+						// user did not submit any report while app was offline
+						console.log('- connection status: app online / user did not submit any report while app was offline');
+					}
 
-				        }, function(response){
-				            // error
-				            
-				            if( response['responseText'].search("cURL error 6: Couldn't resolve host") === 0 ){
-				            	// error: No internet connectivity (the responseText contains that string) => saving locally the report
-				            	console.log('Still no internet connectivity after the app is back online');
-				            }else{
-				            	// any other possible error?
-				            }
-
-				        }, 'POST', JSON.stringify(sfReportBatch), null);	// post payload (must stringify the object)
-
-	                    console.log('App back online');
-                	}else{
-                		console.log('app is back online but thre are not reports to send');
-                	}
                 } else {
-                    // app offline => show banner that alerts the user
-
-
-                    console.log('App offline');
+                	
+                	/********************************************************************************************************************
+	                 *                                                                                     								*
+	                 *  app offline => show banner that alerts the user                                                              	*
+	                 *   																												*
+	                 ********************************************************************************************************************/
+	                 
+                    console.log('- connection status: app offline');
                 }
             }
         });
