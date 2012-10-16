@@ -163,16 +163,21 @@ Ext.define('Kio.controller.Main', {
 		var formPanel = this.getMakeReportPanel();
 		var formValues = formPanel.getValues();
 
-		// change date / time format to match the one we expet in SF: "12/02/2012 12:34"
-		var pickedDate = formValues['reportDate'];
-		formValues['reportDate'] = pickedDate.getDate() + '/' + pickedDate.getMonth() + '/' + pickedDate.getFullYear() + ' ' + pickedDate.getHours() + ':' + pickedDate.getMinutes();
+		// get the model to use validate function
+		var configModel = Ext.create('Kio.model.Report');
+		var errors = configModel.validateReport(formValues);
 
-		// groundId must be the actual id and not the label => fix this
-		var groundStore = Ext.getStore('Ground');
-		var selectedGroundRecord = groundStore.findRecord('groundName',formValues['groundId']);	// *** IMPROVE *** (we can get directly id from the form)
-		
-		// user must select a ground *** IMPROVE *** user must enter all the infos
-		if( selectedGroundRecord != null ){
+		if(errors != null){ // There are errors so we have to do sth
+			alert(errors);
+		} else {			
+			// change date / time format to match the one we expet in SF: "12/02/2012 12:34"
+			var pickedDate = formValues['reportDate'];
+			formValues['reportDate'] = pickedDate.getDate() + '/' + pickedDate.getMonth() + '/' + pickedDate.getFullYear() + ' ' + pickedDate.getHours() + ':' + pickedDate.getMinutes();
+
+			// groundId must be the actual id and not the label => fix this
+			var groundStore = Ext.getStore('Ground');
+			var selectedGroundRecord = groundStore.findRecord('groundName',formValues['groundId']);	// *** IMPROVE *** (we can get directly id from the form)
+			
 			// user selected a ground 
 			formValues['groundId'] = selectedGroundRecord.data['recordId'];	 // set the recordId (sf id) instead of the groundName *** IMPROVE *** related to above
 
@@ -243,9 +248,6 @@ Ext.define('Kio.controller.Main', {
 			    }
 			});
 		
-		}else{
-			// user must select a ground
-			alert('A ground is necessary in order to submit a report');
 		}
 	},
 	backHomeFromTheSameTabPanel: function(){
@@ -271,32 +273,39 @@ Ext.define('Kio.controller.Main', {
 		// get form values
 		var formValues = this.getSettingFormPanel().getValues();
 
-		// load config load storage
-		var configStore = Ext.getStore('Config');
-		var configValues = configStore.getAt(0);
-	
-		// save in the config local storage the form values
-		configValues.set('address',formValues['address']);
-		configValues.set('email',formValues['email']);
-		configValues.set('name',formValues['name']);
-		configValues.set('phone',formValues['phone']);
-		// for is saving chackbox as 1 or 0 and not boolean like our model does
-		if( formValues['currentLocation'] === 1 )
-			configValues.set('currentLocation',true);
-		else
-			configValues['data']['currentLocation'] = false;
-		if( formValues['pushNotifications'] === 1 )
-			configValues.set('pushNotifications',true);
-		else
-			configValues.set('pushNotifications',false);
-		// saving the regular ground measn saving directly the name so the report form will be prepopulated with the name
-		configValues.set('regularGround',formValues['regularGround']);
-		// update the record
-		configStore.sync();
+		var configModel = Ext.create('Kio.model.Config');
+		var errors = configModel.validateConfig(formValues);
 
-		// go back to the home page
-		var mainTab = this.getMainTabPanel();
-		mainTab.setActiveItem(0);
+		if(errors != null){ // There are errors so we have to do sth
+			alert(errors);
+		} else {
+			// load config load storage
+			var configStore = Ext.getStore('Config');
+			var configValues = configStore.getAt(0);
+		
+			// save in the config local storage the form values
+			configValues.set('address',formValues['address']);
+			configValues.set('email',formValues['email']);
+			configValues.set('name',formValues['name']);
+			configValues.set('phone',formValues['phone']);
+			// for is saving chackbox as 1 or 0 and not boolean like our model does
+			if( formValues['currentLocation'] === 1 )
+				configValues.set('currentLocation',true);
+			else
+				configValues['data']['currentLocation'] = false;
+			if( formValues['pushNotifications'] === 1 )
+				configValues.set('pushNotifications',true);
+			else
+				configValues.set('pushNotifications',false);
+			// saving the regular ground measn saving directly the name so the report form will be prepopulated with the name
+			configValues.set('regularGround',formValues['regularGround']);
+			// update the record
+			configStore.sync();
+
+			// go back to the home page
+			var mainTab = this.getMainTabPanel();
+			mainTab.setActiveItem(0);
+		}
 	},
 	loadSettingFormValues: function() {
 		// Gets the config record

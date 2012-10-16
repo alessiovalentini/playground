@@ -18,14 +18,14 @@ function salesforce(app_type, env){
 		// this token last the time set up in sf under timeout options
 		// if no one is calling the api for that amount of time the token must be refreshed using the refresh_token
 		// in this implementation the token is getted every time at the startup of the app using the refresh token and saved in memory
-		this.access_token  = "00DJ00000007aDx!AQIAQICYDS16Vd6lpw5lpN..ISxRmQbFKYlC10GVT9aXWGCh_BHcQi37_m7Kc3ArhJQZdu6S3T8Ob1WY9inkqAuyvZ0m5XxN";
+		this.access_token  = "00DJ00000007aDx!AQIAQD2inai_sz0qEikEEmH7h4W5c4BT5earyVT_2XueWmEsqPTJhHlij_MabRBf4_ALEiBuU8YyKbumXLkK6pVlGjoePni0";
 		// long term token
 		this.refresh_token = "5Aep861H8tnG68exDFPLJiMbW7gyzDIvQ1zY7LtUCh9ys4lGgxc7gNby2x5nEnzcvamhnkv3MDHvw==";
 		this.instance_url  = "https://cs10.salesforce.com";
 
 		// only needed when using the app as a web app - not needed when the app is an hybrid app created with build.phonegap.com
 		this.proxy_url     = "http://localhost:8888/Kickitout-Mobile/resources/proxy/proxy.php?mode=native";
-
+  		
 		// initialization - get a force tk client and set it up accordingly to the app type
 		this.client 	   = this.getClient( app_type );
 

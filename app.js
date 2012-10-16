@@ -13,7 +13,9 @@ var App = new Ext.application({
         'Ext.field.DatePicker',
         'Ext.util.Geolocation',
         'Ext.data.proxy.LocalStorage',
-        'Ext.data.identifier.Uuid'
+        'Ext.data.identifier.Uuid',
+        'Ext.ux.picker.DateTime',
+        'Ext.ux.field.DateTimePicker'
     ],
 	
 	controllers: ['Main'],
@@ -99,13 +101,13 @@ var App = new Ext.application({
         },function(error_response){
             // if error means error in the refresh_token OR no internet connection            
             
-            if( error_response['responseText'].search("cURL error 6: Couldn't resolve host") === 0 ){
+        //    if( error_response['responseText'].search("cURL error 6: Couldn't resolve host") === 0 ){
                 // error: No internet connectivity
                 console.log('- no internet connectivity: working offline till connectivity is back');
-            }else{
+          //  }else{
                 // error refreshing the access_token
                 console.log('- app online but error refreshing access_token');
-            }
+            //}
             console.log(error_response);
         });
 
@@ -115,7 +117,6 @@ var App = new Ext.application({
          *                                                                                     *
          ***************************************************************************************/        
 
-        // get news
         this.sf.getNews(function(success_response){                     // anonymous function or move down with a news_success() function
             // success => save news into local storage
             var newsModel = Ext.create('Kio.model.News');

@@ -281,10 +281,12 @@ if ( !$url ) {
   curl_setopt( $ch, CURLOPT_USERAGENT, 
 	isset($_GET['user_agent']) ? $_GET['user_agent'] : $_SERVER['HTTP_USER_AGENT'] );
   
-  /* FOR WINDOWS
+  /*
+  //////// FOR WINDOWS
   curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-     FOR WINDOWS*/
-
+  //////// FOR WINDOWS
+  */
+  
   list( $header, $contents ) = preg_split( '/([\r\n][\r\n])\\1/', curl_exec( $ch ), 2 );
   
   $status = curl_getinfo( $ch );
