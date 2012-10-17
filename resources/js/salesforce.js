@@ -22,13 +22,7 @@ function salesforce(app_type, env){
 		// long term token
 		this.refresh_token = "5Aep861H8tnG68exDFPLJiMbW7gyzDIvQ1zY7LtUCh9ys4lGgxc7gNby2x5nEnzcvamhnkv3MDHvw==";
 		this.instance_url  = "https://cs10.salesforce.com";
-
-		// only needed when using the app as a web app - not needed when the app is an hybrid app created with build.phonegap.com
-		this.proxy_url     = "http://localhost/Kickitout-Mobile/resources/proxy/proxy.php?mode=native";
   		
-		// initialization - get a force tk client and set it up accordingly to the app type
-		this.client 	   = this.getClient( app_type );
-
 	}else if( env === 'production' ){
 
 		// salesforce properties production
@@ -44,14 +38,15 @@ function salesforce(app_type, env){
 		this.access_token  = "00DJ00000007aDx!AQIAQMxgbpfK0y.Ci.86TM48I2nV5ltKF8H1.SSMf7LXlip1pZSIx6jqlHfwrI2jiXJtNqNJgjf1tEUcmowfOkIoU9v.QdQ9";
 		// long term token
 		this.refresh_token = "5Aep861rSrJOsYD8snSP51Uw1W8G75ZRCxISj6S5dOQX86ZmVSlXWKKQUJ09Tlf1rnjpKUe_q41SQ==";
-		this.instance_url  = "https://eu2.salesforce.com";
-
-		// only needed when using the app as a web app - not needed when the app is an hybrid app created with build.phonegap.com
-		this.proxy_url     = "http://localhost:8888/Kickitout-Mobile/resources/proxy/proxy.php?mode=native";
-
-		// initialization - get a force tk client and set it up accordingly to the app type
-		this.client 	   = this.getClient( app_type );
+		this.instance_url  = "https://eu2.salesforce.com";		
 	} 	
+
+	// only needed when using the app as a web app - not needed when the app is an hybrid app created with build.phonegap.com
+	// this.proxy_url     = "http://localhost/Kickitout-Mobile/resources/proxy/proxy.php?mode=native";		// windows
+	this.proxy_url     = "http://localhost:8888/Kickitout-Mobile/resources/proxy/proxy.php?mode=native";    // osx
+
+	// initialization - get a force tk client and set it up accordingly to the app type
+	this.client 	   = this.getClient( app_type );
 }
 
 /******************************************************************************************************** 
