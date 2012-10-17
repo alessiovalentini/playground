@@ -1,13 +1,6 @@
 Ext.define('Kio.controller.Main', {
 	extend: 'Ext.app.Controller',
 	
-	// connection checker (under sdk/src/ux/util)
-	requires: [
-        'Ext.ux.util.OnlineManager',
-        'Ext.util.Geolocation'
-    ],
-    // connection checker
-
 	config: {
 		refs: {
 			mainTabPanel: 'kio_main_tabPanel',				// the connection manager is attached to the main panel

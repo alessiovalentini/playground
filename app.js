@@ -15,7 +15,9 @@ var App = new Ext.application({
         'Ext.data.proxy.LocalStorage',
         'Ext.data.identifier.Uuid',
         'Ext.ux.picker.DateTime',
-        'Ext.ux.field.DateTimePicker'
+        'Ext.ux.field.DateTimePicker',
+        'Ext.ux.util.OnlineManager',    // connection checker (under sdk/src/ux/util)
+        'Ext.util.Geolocation'
     ],
 	
 	controllers: ['Main'],
