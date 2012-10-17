@@ -5,11 +5,11 @@ Ext.define('Kio.model.Report', {
 		identifier: 'uuid',
         fields: ['id','recordId', 'groundId', 'reportDate', 'description','name','phone','email','address'],
         validations: [
-			            { type: 'presence',  field: 'groundId',    message: 'Ground Id is required'},
-			            { type: 'presence',  field: 'reportDate',  message: 'Report date is required'},
-			            { type: 'presence',  field: 'description', message: 'Description  is required'},
-			            { type: 'format',    field: 'phone',       message: 'Wrong phone', matcher: /^\d*$/ },
-			            { type: 'format',    field: 'email',       message: 'Wrong email', matcher: /^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4})*$/ }
+			            { type: 'presence',  field: 'groundId',    message: 'Please choose the ground where the incident happened'},
+			            { type: 'presence',  field: 'reportDate',  message: 'Please tell us when the incident happened'},
+			            { type: 'presence',  field: 'description', message: 'Please tell us what happened'},
+			            { type: 'format',    field: 'phone',       message: 'This is not a right phone number', matcher: /^\d*$/ },
+			            { type: 'format',    field: 'email',       message: 'This email is not well formed', matcher: /^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4})*$/ }
         ]
     },
 
@@ -56,7 +56,7 @@ Ext.define('Kio.model.Report', {
 			if(!errors.isValid()){ // returns 'false' as there were validation errors
 				result = "";
 				for(var i = 0; i<errors['items']['length']; i++){
-					result += errors['items'][i]['_message'] + '\n';
+					result += errors['items'][i]['_message'] + '<br/>';
 				}
 			}
 

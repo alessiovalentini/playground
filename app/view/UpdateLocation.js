@@ -24,13 +24,17 @@ Ext.define('Kio.view.UpdateLocation', {
 			},
 			locationerror: function(geo, bTimeout, bPermissionDenied, bLocationUnavailable, message) {
 				if(bTimeout){
-					alert('Timeout occurred.');									
+					// alert('Timeout occurred.');
+			    	// Note that the MessageBox is asynchronous. For this reason, you must use a callback function
+			    	Ext.Msg.alert('Error', 'Timeout occurred. It wasn\'t possible to update your location.', Ext.emptyFn);					
 					// Initialize the main view
 					var mainView = Ext.create('Kio.view.Main');
 		            Ext.Viewport.add(mainView);
 		            Ext.Viewport.setActiveItem(mainView);								
 				} else {
-					alert('Error occurred.');									
+					// alert('Error occurred.');					
+			    	// Note that the MessageBox is asynchronous. For this reason, you must use a callback function
+			    	Ext.Msg.alert('Error', 'Error occurred. It wasn\'t possible to update your location.', Ext.emptyFn);
 					// Initialize the main view
 					var mainView = Ext.create('Kio.view.Main');
 		            Ext.Viewport.add(mainView);

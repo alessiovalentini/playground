@@ -24,7 +24,9 @@ Ext.define('Kio.controller.Main', {
 			settingFormPanel: 'kio_setting_panel',
 			settingTabBarButton: 'tabbar button[title=Setting]',
 			regularGround: '#kio_regularGround_selectfield',
-			makeReportHomeButton: '#kio_home_makeAReport_button'			
+			makeReportHomeButton: '#kio_home_makeAReport_button',
+			declineTermsAndConditionsButton: '#kio_termsAndConditions_decline_button',
+			confirmTermsAndConditionsButton: '#kio_termsAndConditions_confirm_button'
 		},
 		control: {
 			// connection checker
@@ -67,6 +69,12 @@ Ext.define('Kio.controller.Main', {
 			},
 			settingTabBarButton: {
 				tap: 'loadSettingFormValues'
+			},
+			declineTermsAndConditionsButton: {
+				tap: 'declineTermsAndConditions'
+			},
+			confirmTermsAndConditionsButton: {
+				tap: 'confirmTermsAndConditions'
 			}
 		}
 	},
@@ -93,12 +101,6 @@ Ext.define('Kio.controller.Main', {
 		mainTab.setActiveItem(1);
 	},
 	showMakeReport: function(){
-
-		// if( config.firstReport == true){
-		// 	this.showReport();
-		// 	config.firstReport = false;
-		// }else
-		// {
 
 		// If it was created before, just show the panel otherwise it creates it
 		var makeReportPanel = this.getMakeReportPanel();
@@ -167,8 +169,12 @@ Ext.define('Kio.controller.Main', {
 		var configModel = Ext.create('Kio.model.Report');
 		var errors = configModel.validateReport(formValues);
 
-		if(errors != null){ // There are errors so we have to do sth
-			alert(errors);
+		if(errors != null){
+			// Show errors
+			// alert(errors);			
+	    	// Note that the MessageBox is asynchronous. For this reason, you must use a callback function
+	    	Ext.Msg.alert('Error', errors, Ext.emptyFn);
+
 		} else {			
 			// change date / time format to match the one we expet in SF: "12/02/2012 12:34"
 			var pickedDate = formValues['reportDate'];
@@ -205,18 +211,19 @@ Ext.define('Kio.controller.Main', {
 			    	reportsStore.sync();
 
 			    	// show alert to the user
-			    	alert('Thanks! Your report has been submitted');
+			    	// Note that the MessageBox is asynchronous. For this reason, you must use a callback function
+			    	Ext.Msg.alert('Thanks!', 'Your report has been submitted', function(){
+			    		// clear form
+				    	formPanel.reset();
+				  
+						// go back to main tab screen
+						var mainPanel = mainController.getMainTabPanel()	// get main tab panel
+			        	mainPanel.setActiveItem(0);		      				// set that the active item is the first (home)
+			        	Ext.Viewport.setActiveItem(mainPanel);				// set the active item for the viewport => is the tab main panel with home panel selected
 
-			    	// clear form
-			    	formPanel.reset();
-			  
-					// go back to main tab screen
-					var mainPanel = mainController.getMainTabPanel()	// get main tab panel
-		        	mainPanel.setActiveItem(0);		      				// set that the active item is the first (home)
-		        	Ext.Viewport.setActiveItem(mainPanel);				// set the active item for the viewport => is the tab main panel with home panel selected
-
-			    	console.log('- ' + reports_batch['reportList'].length + ' report(s) submitted successfully to salesforce');
-			    	console.log(reports_batch);
+				    	console.log('- ' + reports_batch['reportList'].length + ' report(s) submitted successfully to salesforce');
+				    	console.log(reports_batch);
+			    	});
 			    
 			    }else{
 			    	// error =>
@@ -231,17 +238,20 @@ Ext.define('Kio.controller.Main', {
 			    	// error: No internet connectivity			    	
 
 			    	// show message to the user
-			    	alert('Thanks! Your report will be submitted as soon as the Internet connectivity will be available');
+			    	// alert('Thanks! Your report will be submitted as soon as the Internet connectivity will be available');
+			    	// show alert to the user
+			    	// Note that the MessageBox is asynchronous. For this reason, you must use a callback function
+			    	Ext.Msg.alert('Thanks!', 'Your report will be submitted as soon as the Internet connectivity will be available', function(){	    		
+				    	// clear form
+						formPanel.reset();
 
-			    	// clear form
-					formPanel.reset();
+						// go back to main tab screen
+						var mainPanel = mainController.getMainTabPanel()	// get main tab panel
+			        	mainPanel.setActiveItem(0);		      				// set that the active item is the first (home)
+			        	Ext.Viewport.setActiveItem(mainPanel);				// set the active item for the viewport => is the tab main panel with home panel selected
 
-					// go back to main tab screen
-					var mainPanel = mainController.getMainTabPanel()	// get main tab panel
-		        	mainPanel.setActiveItem(0);		      				// set that the active item is the first (home)
-		        	Ext.Viewport.setActiveItem(mainPanel);				// set the active item for the viewport => is the tab main panel with home panel selected
-
-			    	console.log('- no internet connectivity: report saved locally');
+				    	console.log('- no internet connectivity: report saved locally');
+			    	});
 
 			    }else{
 			    	// any other possible error?? wrong token?!!? *** IMPROVE ***
@@ -276,8 +286,11 @@ Ext.define('Kio.controller.Main', {
 		var configModel = Ext.create('Kio.model.Config');
 		var errors = configModel.validateConfig(formValues);
 
-		if(errors != null){ // There are errors so we have to do sth
-			alert(errors);
+		if(errors != null){			
+			// Show errors
+			// alert(errors);			
+	    	// Note that the MessageBox is asynchronous. For this reason, you must use a callback function
+	    	Ext.Msg.alert('Error', errors, Ext.emptyFn);
 		} else {
 			// load config load storage
 			var configStore = Ext.getStore('Config');
@@ -320,7 +333,15 @@ Ext.define('Kio.controller.Main', {
 			regularGround.setPlaceHolder(regularGroundLocalStorageValue);        	
         }
 	},
-
+	declineTermsAndConditions: function() {
+		// Show errors
+		// alert(errors);			
+    	// Note that the MessageBox is asynchronous. For this reason, you must use a callback function
+    	Ext.Msg.alert('Error', 'It is not possible to use the application without accepting the Terms and Conditions', Ext.emptyFn);
+	},
+	confirmTermsAndConditions: function() {
+		getLocation();
+	},
 	// connection checker => perform actions on app online or offline
 	checkConnection: function(){
 
