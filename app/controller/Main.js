@@ -3,7 +3,8 @@ Ext.define('Kio.controller.Main', {
 	
 	// connection checker (under sdk/src/ux/util)
 	requires: [
-        'Ext.ux.util.OnlineManager'
+        'Ext.ux.util.OnlineManager',
+        'Ext.util.Geolocation'
     ],
     // connection checker
 
@@ -110,7 +111,8 @@ Ext.define('Kio.controller.Main', {
 			// add and set as an active view
 			Ext.Viewport.add(makeReportPanel);
 		}
-		
+
+        
 		/******************************************************************************************************* 
 		*                                                                                                      *
 		*  populate the form values with the available values from the user Config in the local storage        *
@@ -119,6 +121,24 @@ Ext.define('Kio.controller.Main', {
 		
 		var configStore = Ext.getStore('Config');
 		var settings = configStore.getAt(0);
+
+        
+		/******************************************************************************************************* 
+		*                                                                                                      *
+		*  check if the user allows the app to get the current location. If yes, the grounds                   *
+		*  must be oredered by location                                                                        *
+		*                                                                                                      *
+		********************************************************************************************************/
+		
+		// Get the status of currentLocation
+        var currentLocation = configStore.getAt(0)['_data']['currentLocation'];   
+
+        if(currentLocation === true){
+            // set the new location of the user
+            var geo = Ext.create('Kio.view.UpdateLocation');
+            geo.updateLocation();
+            // **** REORDER THE GROUNDS ***
+        }         
 
 		// **** IMPROVE *** get the name of the ground having the regularGround id, in order to prepopulate the make report view with the name of the ground
 		var groundStore = Ext.getStore('Ground');
@@ -214,8 +234,8 @@ Ext.define('Kio.controller.Main', {
 			    	// Note that the MessageBox is asynchronous. For this reason, you must use a callback function
 			    	Ext.Msg.alert('Thanks!', 'Your report has been submitted', function(){
 			    		// clear form
-				    	formPanel.reset();
-				  
+				    	formPanel.reset();;
+
 						// go back to main tab screen
 						var mainPanel = mainController.getMainTabPanel()	// get main tab panel
 			        	mainPanel.setActiveItem(0);		      				// set that the active item is the first (home)
@@ -340,7 +360,11 @@ Ext.define('Kio.controller.Main', {
     	Ext.Msg.alert('Error', 'It is not possible to use the application without accepting the Terms and Conditions', Ext.emptyFn);
 	},
 	confirmTermsAndConditions: function() {
-		getLocation();
+		getLocation();		
+		// Initialize the main view
+		var mainView = Ext.create('Kio.view.Main');
+		Ext.Viewport.add(mainView);
+		Ext.Viewport.setActiveItem(mainView);
 	},
 	// connection checker => perform actions on app online or offline
 	checkConnection: function(){
@@ -416,7 +440,9 @@ Ext.define('Kio.controller.Main', {
 	                 *   																												*
 	                 ********************************************************************************************************************/
 	                 
-                    console.log('- connection status: app offline');
+                    console.log('- connection status: app offline');		
+			    	// Note that the MessageBox is asynchronous. For this reason, you must use a callback function
+			    	Ext.Msg.alert('Warning', 'connection status: app offline', Ext.emptyFn);
                 }
             }
         });

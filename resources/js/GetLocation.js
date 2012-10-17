@@ -19,11 +19,6 @@ var getLocation = function() {
 				// Set the location
 				var geo = Ext.create('Kio.view.UpdateLocation');
 				geo.updateLocation();
-			} else {								
-				// Initialize the main view
-				var mainView = Ext.create('Kio.view.Main');
-				Ext.Viewport.add(mainView);
-				Ext.Viewport.setActiveItem(mainView);
 			}
 	} 
 	});

@@ -167,7 +167,7 @@ var App = new Ext.application({
 
         // Using a delayedTask, after x ms
         Ext.create('Ext.util.DelayedTask', function() {
-            // Gets the config storage
+            // Gets the config store
             var store = Ext.getStore('Config');
             // This is the config record Id in the local storage
             var configRecordId = '1';
@@ -212,10 +212,27 @@ var App = new Ext.application({
                  *  second+ app's startup                                                              *
                  *                                                                                     *
                  ***************************************************************************************/
+                // // Gets the config store
+                // var configStore = Ext.getStore('Config');
+                // // Get the status of currentLocation
+                // var currentLocation = configStore.getAt(0)['_data']['currentLocation'];   
 
-                // set the location ====> remove and get location when hitting send report button
-                var geo = Ext.create('Kio.view.UpdateLocation');
-                geo.updateLocation();
+                // if(currentLocation === true){
+                //     console.log('set a new location');
+                //     // set the location ====> remove and get location when hitting make report button
+                //     var geo = Ext.create('Kio.view.UpdateLocation');
+                //     geo.updateLocation();
+                // } else {
+                //     console.log('Dont set a new location. Go to main view');
+                //     // Initialize the main view
+                //     var mainView = Ext.create('Kio.view.Main');
+                //     Ext.Viewport.add(mainView);
+                //     Ext.Viewport.setActiveItem(mainView);
+                // }
+                // Initialize the main view
+                var mainView = Ext.create('Kio.view.Main');
+                Ext.Viewport.add(mainView);
+                Ext.Viewport.setActiveItem(mainView);
             }
 
         }).delay(0);
