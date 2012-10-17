@@ -189,7 +189,7 @@ Ext.define('Kio.controller.Main', {
 		var configModel = Ext.create('Kio.model.Report');
 		var errors = configModel.validateReport(formValues);
 
-		if(errors != null){
+		if(errors != null ){
 			// Show errors
 			// alert(errors);			
 	    	// Note that the MessageBox is asynchronous. For this reason, you must use a callback function

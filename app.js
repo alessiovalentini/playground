@@ -102,7 +102,7 @@ var App = new Ext.application({
         },function(error_response){
             // if error means error in the refresh_token OR no internet connection            
             
-            if( error_response['responseText'].search("cURL error 6: Couldn't resolve host") === 0 ){
+            if( error_response['responseText'] && error_response['responseText'].search("cURL error 6: Couldn't resolve host") === 0 ){
                 // error: No internet connectivity
                 console.log('- no internet connectivity: working offline till connectivity is back');
             }else{
@@ -138,20 +138,6 @@ var App = new Ext.application({
                 console.log('- no internet connectivity while getting news: working offline till connectivity is back');
             }
 
-            console.log(error_response);
-        });
-
-        this.sf.getGrounds(function(success_response){
-            // success => save grounds into local storage
-            var grounds_model = Ext.create('Kio.model.Ground');
-            var n = grounds_model.saveGrounds(JSON.parse(success_response));
-
-            // console.log('got ' + success_response.length + 'grounds from sf')                                                                               
-            console.log('- saved ' + n + ' grounds into the local storage');
-
-        }, function(error_response){
-            // token failing or no internet connection
-            console.log('- error getting grounds');
             console.log(error_response);
         });
 
