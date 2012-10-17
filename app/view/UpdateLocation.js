@@ -17,28 +17,18 @@ Ext.define('Kio.view.UpdateLocation', {
 				configRecord.set('longitude',longitude);
 				// sync the config record in the local storage
 				store.sync();
-				// Initialize the main view
-				var mainView = Ext.create('Kio.view.Main');
-				Ext.Viewport.add(mainView);
-				Ext.Viewport.setActiveItem(mainView);
+				console.log('latitude: '+latitude);
+				console.log('longitude: '+longitude);
 			},
 			locationerror: function(geo, bTimeout, bPermissionDenied, bLocationUnavailable, message) {
 				if(bTimeout){
 					// alert('Timeout occurred.');
 			    	// Note that the MessageBox is asynchronous. For this reason, you must use a callback function
-			    	Ext.Msg.alert('Error', 'Timeout occurred. It wasn\'t possible to update your location.', Ext.emptyFn);					
-					// Initialize the main view
-					var mainView = Ext.create('Kio.view.Main');
-		            Ext.Viewport.add(mainView);
-		            Ext.Viewport.setActiveItem(mainView);								
+			    	Ext.Msg.alert('Error', 'Timeout occurred. It wasn\'t possible to update your location.', Ext.emptyFn);
 				} else {
 					// alert('Error occurred.');					
 			    	// Note that the MessageBox is asynchronous. For this reason, you must use a callback function
 			    	Ext.Msg.alert('Error', 'Error occurred. It wasn\'t possible to update your location.', Ext.emptyFn);
-					// Initialize the main view
-					var mainView = Ext.create('Kio.view.Main');
-		            Ext.Viewport.add(mainView);
-		            Ext.Viewport.setActiveItem(mainView);
 				}
 			}
 		}  
