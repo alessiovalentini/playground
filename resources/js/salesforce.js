@@ -24,7 +24,8 @@ function salesforce(app_type, env){
 		this.instance_url  = "https://cs10.salesforce.com";
 
 		// only needed when using the app as a web app - not needed when the app is an hybrid app created with build.phonegap.com
-		this.proxy_url     = "http://localhost/Kickitout-Mobile/resources/proxy/proxy.php?mode=native";
+		// this.proxy_url     = "http://localhost/Kickitout-Mobile/resources/proxy/proxy.php?mode=native";		// windows
+		this.proxy_url     = "http://localhost:8888/Kickitout-Mobile/resources/proxy/proxy.php?mode=native";		// osx
   		
 		// initialization - get a force tk client and set it up accordingly to the app type
 		this.client 	   = this.getClient( app_type );
@@ -47,7 +48,8 @@ function salesforce(app_type, env){
 		this.instance_url  = "https://eu2.salesforce.com";
 
 		// only needed when using the app as a web app - not needed when the app is an hybrid app created with build.phonegap.com
-		this.proxy_url     = "http://localhost:8888/Kickitout-Mobile/resources/proxy/proxy.php?mode=native";
+		// this.proxy_url     = "http://localhost/Kickitout-Mobile/resources/proxy/proxy.php?mode=native";		// windows
+		this.proxy_url     = "http://localhost:8888/Kickitout-Mobile/resources/proxy/proxy.php?mode=native";    // osx
 
 		// initialization - get a force tk client and set it up accordingly to the app type
 		this.client 	   = this.getClient( app_type );

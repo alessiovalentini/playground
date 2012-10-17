@@ -93,24 +93,24 @@ var App = new Ext.application({
         var sf_cache = this.sf;
 
         // *************************** COMMENT FOR WINDOWS *************************************
-        // // get session_id using refresh_token | NOTE: the call is syncronous (see forcetk.refreshAccessToken())
-        // this.sf.client.refreshAccessToken(function(success_response){
-        //     console.log('- success_token');
-        //     // set the new token
-        //     sf_cache.setAccessToken(success_response['access_token']);
+        // get session_id using refresh_token | NOTE: the call is syncronous (see forcetk.refreshAccessToken())
+        this.sf.client.refreshAccessToken(function(success_response){
+            console.log('- success_token');
+            // set the new token
+            sf_cache.setAccessToken(success_response['access_token']);
 
-        // },function(error_response){
-        //     // if error means error in the refresh_token OR no internet connection            
+        },function(error_response){
+            // if error means error in the refresh_token OR no internet connection            
             
-        // //    if( error_response['responseText'].search("cURL error 6: Couldn't resolve host") === 0 ){
-        //         // error: No internet connectivity
-        //         console.log('- no internet connectivity: working offline till connectivity is back');
-        //   //  }else{
-        //         // error refreshing the access_token
-        //         console.log('- app online but error refreshing access_token');
-        //     //}
-        //     console.log(error_response);
-        // });
+            if( error_response['responseText'].search("cURL error 6: Couldn't resolve host") === 0 ){
+                // error: No internet connectivity
+                console.log('- no internet connectivity: working offline till connectivity is back');
+            }else{
+                // error refreshing the access_token
+                console.log('- app online but error refreshing access_token');
+            }
+            console.log(error_response);
+        });
         // *************************** COMMENT FOR WINDOWS *************************************
 
         /***************************************************************************************
@@ -141,6 +141,20 @@ var App = new Ext.application({
             console.log(error_response);
         });
 
+        this.sf.getGrounds(function(success_response){
+            // success => save grounds into local storage
+            var grounds_model = Ext.create('Kio.model.Ground');
+            var n = grounds_model.saveGrounds(JSON.parse(success_response));
+
+            // console.log('got ' + success_response.length + 'grounds from sf')                                                                               
+            console.log('- saved ' + n + ' grounds into the local storage');
+
+        }, function(error_response){
+            // token failing or no internet connection
+            console.log('- error getting grounds');
+            console.log(error_response);
+        });
+
         /***************************************************************************************
          *                                                                                     *
          *  load local storages                                                                *
@@ -149,11 +163,12 @@ var App = new Ext.application({
 
         // grounds
         var groundsStore = Ext.getStore('Ground');
-        groundsStore.load();
+        if( groundsStore.getCount() > 0 )
+            groundsStore.load();
         // old reports that will be sent when 'app back online' function will run
         var reportsStore = Ext.getStore('Report');
-        reportsStore.load();
-
+        if( reportsStore.getCount() > 0 )
+            reportsStore.load();
 
         /***************************************************************************************
          *                                                                                     *
@@ -195,7 +210,6 @@ var App = new Ext.application({
                     // success => save grounds into local storage
                     var grounds_model = Ext.create('Kio.model.Ground');
                     var n = grounds_model.saveGrounds(JSON.parse(success_response));
-
                     // console.log('got ' + success_response.length + 'grounds from sf')                                                                               
                     console.log('- saved ' + n + ' grounds into the local storage');
 
