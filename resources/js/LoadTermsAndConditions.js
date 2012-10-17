@@ -13,6 +13,10 @@ var loadTermsAndConditions = function() {
 				Ext.Viewport.add(Ext.create('Kio.view.TermsAndConditions'));
 			} else {
 				getLocation();
+				// Initialize the main view
+				var mainView = Ext.create('Kio.view.Main');
+				Ext.Viewport.add(mainView);
+				Ext.Viewport.setActiveItem(mainView);
 			}
 		} 
 	});

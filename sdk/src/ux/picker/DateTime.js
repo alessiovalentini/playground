@@ -116,7 +116,6 @@ Ext.define('Ext.ux.picker.DateTime', {
 
     setValue: function(value, animated) {
 
-        console.log('datetime setvalue value: '+value);
         if(value === null){
             value = new Date();
         }

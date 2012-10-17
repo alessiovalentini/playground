@@ -29,4 +29,5 @@ Ext.define('Kio.view.NewsDetail', {
 			}
 		]
 	}
+
 });		
