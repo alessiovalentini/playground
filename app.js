@@ -16,8 +16,7 @@ var App = new Ext.application({
         'Ext.data.identifier.Uuid',
         'Ext.ux.picker.DateTime',
         'Ext.ux.field.DateTimePicker',
-        'Ext.ux.util.OnlineManager',    // connection checker (under sdk/src/ux/util)
-        'Ext.util.Geolocation'
+        'Ext.ux.util.OnlineManager'    // connection checker (under sdk/src/ux/util)        
     ],
 	
 	controllers: ['Main'],
@@ -151,12 +150,10 @@ var App = new Ext.application({
 
         // grounds
         var groundsStore = Ext.getStore('Ground');
-        if( groundsStore.getCount() > 0 )
-            groundsStore.load();
+        groundsStore.load();
         // old reports that will be sent when 'app back online' function will run
         var reportsStore = Ext.getStore('Report');
-        if( reportsStore.getCount() > 0 )
-            reportsStore.load();
+        reportsStore.load();
 
         /***************************************************************************************
          *                                                                                     *

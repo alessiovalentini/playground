@@ -28,7 +28,7 @@ Ext.define('Kio.model.Ground', {
         grounds_store.removeAll();
         grounds_store.sync();
         // write all from sf
-        var grounds = new Array();          
+        var grounds = new Array();      
         for(var i in grounds_list){
          
             // recordId, groundName
