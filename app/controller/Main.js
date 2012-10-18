@@ -190,6 +190,7 @@ Ext.define('Kio.controller.Main', {
 
 		} else {
 			// Loading spinner
+			formPanel.mask(); // shows the mask
 
 			// change date / time format to match the one we expet in SF: "12/02/2012 12:34"
 			var pickedDate = formValues['reportDate'];
@@ -229,7 +230,10 @@ Ext.define('Kio.controller.Main', {
 			    	// Note that the MessageBox is asynchronous. For this reason, you must use a callback function
 			    	Ext.Msg.alert('Thanks!', 'Your report has been submitted', function(){
 			    		// clear form
-				    	formPanel.reset();;
+				    	formPanel.reset();
+
+						// Loading spinner
+						formPanel.unmask(); // hides the mask
 
 						// go back to main tab screen
 						var mainPanel = mainController.getMainTabPanel()	// get main tab panel
@@ -259,6 +263,9 @@ Ext.define('Kio.controller.Main', {
 			    	Ext.Msg.alert('Thanks!', 'Your report will be submitted as soon as the Internet connectivity will be available', function(){
 				    	// clear form
 						formPanel.reset();
+
+						// Loading spinner
+						formPanel.unmask(); // hides the mask
 
 						// go back to main tab screen
 						var mainPanel = mainController.getMainTabPanel()	// get main tab panel

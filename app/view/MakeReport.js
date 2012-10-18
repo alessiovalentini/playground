@@ -8,8 +8,8 @@ Ext.define('Kio.view.MakeReport', {
 		scrollable: 'vertical',
 	    masked: {
 	       xtype: 'loadmask',
-	       message: 'A message..',
-	       hidden: false,
+	       message: 'Submitting report. Please wait..',
+	       hidden: true,
 	       indicator: true
 	    },
 
