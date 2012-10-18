@@ -12,4 +12,5 @@ Ext.define('Kio.view.NewsList', {
 		loadingText: 'Loading news...',
 		style: "background-color: #eeeeee"
 	}
+ 
 });
