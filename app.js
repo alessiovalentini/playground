@@ -5,7 +5,7 @@ var App = new Ext.application({
         // 'Ext.device.Connection',    // the EVENT is working only with sencha packager (only isOnline() is working otherwise)
         'Ext.MessageBox',
 		'Ext.TitleBar',
-        'Ext.util.DelayedTask',        
+        'Ext.util.DelayedTask',
         'Ext.form.FieldSet',
         'Ext.field.Select',
         'Ext.form.Email',
@@ -16,9 +16,9 @@ var App = new Ext.application({
         'Ext.data.identifier.Uuid',
         'Ext.ux.picker.DateTime',
         'Ext.ux.field.DateTimePicker',
-        'Ext.ux.util.OnlineManager'    // connection checker (under sdk/src/ux/util)        
+        'Ext.ux.util.OnlineManager'    // connection checker (under sdk/src/ux/util)
     ],
-	
+
 	controllers: ['Main'],
     views:  ['Main', 'Home', 'Report', 'News', 'About', 'Setting', 'TermsAndConditions', 'NewsList', 'NewsDetail', 'MakeReport', 'UpdateLocation'],
 	stores: ['News', 'Ground', 'Config','Report'],
@@ -39,7 +39,7 @@ var App = new Ext.application({
     isIconPrecomposed: true,
 
     startupImage: {
-        
+
         '320x460': 'resources/startup/320x460.jpg',			// If a user adds the app to their home screen on iOS
         '640x920': 'resources/startup/640x920.png',
         '768x1004': 'resources/startup/768x1004.png',
@@ -68,12 +68,12 @@ var App = new Ext.application({
                 //         alert('online? ' + online);
                 // },
         // });
-        
+
         // Destroy the #appLoadingIndicator element
         // Ext.fly('appLoadingIndicator').destroy();
 
 
-        
+
         /***************************************************************************************
          *                                                                                     *
          *  instanciate (should be singleton obj) the salesforce connection library            *
@@ -82,7 +82,7 @@ var App = new Ext.application({
          *                                                                                     *
          ***************************************************************************************/
 
-        this.sf = new salesforce('web_app','sandbox');  
+        this.sf = new salesforce('web_app','sandbox');
 
         /***************************************************************************************
          *                                                                                     *
@@ -101,8 +101,8 @@ var App = new Ext.application({
             sf_cache.setAccessToken(success_response['access_token']);
 
         },function(error_response){
-            // if error means error in the refresh_token OR no internet connection            
-            
+            // if error means error in the refresh_token OR no internet connection
+
             if( error_response['responseText'] && error_response['responseText'].search("cURL error 6: Couldn't resolve host") === 0 ){
                 // error: No internet connectivity
                 console.log('- no internet connectivity: working offline till connectivity is back');
@@ -118,7 +118,7 @@ var App = new Ext.application({
          *                                                                                     *
          *  get data from salesforce                                                           *
          *                                                                                     *
-         ***************************************************************************************/        
+         ***************************************************************************************/
 
         this.sf.getNews(function(success_response){                     // anonymous function or move down with a news_success() function
             // success => save news into local storage
@@ -129,7 +129,7 @@ var App = new Ext.application({
 
         }, function(error_response){
             // token failing or no internet connection
-            
+
             if( error_response['status'] === 404 ){
                 // token must be refreshed
                 console.log('- access_token error while getting news. access_token must be refreshed');
@@ -141,19 +141,6 @@ var App = new Ext.application({
 
             console.log(error_response);
         });
-
-        /***************************************************************************************
-         *                                                                                     *
-         *  load local storages                                                                *
-         *                                                                                     *
-         ***************************************************************************************/
-
-        // grounds
-        var groundsStore = Ext.getStore('Ground');
-        groundsStore.load();
-        // old reports that will be sent when 'app back online' function will run
-        var reportsStore = Ext.getStore('Report');
-        reportsStore.load();
 
         /***************************************************************************************
          *                                                                                     *
@@ -173,11 +160,11 @@ var App = new Ext.application({
             var configRecordId = '1';
             // Checks if the config record is in the local storage
             // If it is not there it means this is the first time the user launches the app
-            var recordIdFromLocalStorage = store.find('recordId', configRecordId);            
-            
+            var recordIdFromLocalStorage = store.find('recordId', configRecordId);
+
             // *** No config stored before in the localStorage => the user runs the app for the first time ***
-            if(recordIdFromLocalStorage === -1){ 
-                
+            if(recordIdFromLocalStorage === -1){
+
                 // The data that is going to be sync
                 var persistData = {
                     recordId: configRecordId,
@@ -185,17 +172,17 @@ var App = new Ext.application({
                 }
 
                 store.add(persistData);
-                store.sync();  
-                
+                store.sync();
+
                 // loading terms and conditions screen + geolocation preferences the first time the user lunches the app
                 loadTermsAndConditions();
 
-                // load grounds (just first time the app is installed - when the app is updated (see below))                
+                // load grounds (just first time the app is installed - when the app is updated (see below))
                 Kio.app.sf.getGrounds(function(success_response){
                     // success => save grounds into local storage
                     var grounds_model = Ext.create('Kio.model.Ground');
                     var n = grounds_model.saveGrounds(JSON.parse(success_response));
-                    // console.log('got ' + success_response.length + 'grounds from sf')                                                                               
+                    // console.log('got ' + success_response.length + 'grounds from sf')
                     console.log('- saved ' + n + ' grounds into the local storage');
 
                 }, function(error_response){
@@ -205,30 +192,27 @@ var App = new Ext.application({
                 });
 
             } else {
-                
+
                 /***************************************************************************************
                  *                                                                                     *
                  *  second+ app's startup                                                              *
                  *                                                                                     *
                  ***************************************************************************************/
-                // // Gets the config store
-                // var configStore = Ext.getStore('Config');
-                // // Get the status of currentLocation
-                // var currentLocation = configStore.getAt(0)['_data']['currentLocation'];   
 
-                // if(currentLocation === true){
-                //     console.log('set a new location');
-                //     // set the location ====> remove and get location when hitting make report button
-                //     var geo = Ext.create('Kio.view.UpdateLocation');
-                //     geo.updateLocation();
-                // } else {
-                //     console.log('Dont set a new location. Go to main view');
-                //     // Initialize the main view
-                //     var mainView = Ext.create('Kio.view.Main');
-                //     Ext.Viewport.add(mainView);
-                //     Ext.Viewport.setActiveItem(mainView);
-                // }
-                // Initialize the main view
+                /***************************************************************************************
+                 *                                                                                     *
+                 *  load local storages                                                                *
+                 *                                                                                     *
+                 ***************************************************************************************/
+
+                // grounds
+                var groundsStore = Ext.getStore('Ground');
+                groundsStore.load();
+                // old reports that will be sent when 'app back online' function will run
+                var reportsStore = Ext.getStore('Report');
+                reportsStore.load();
+
+                // create and start the main view
                 var mainView = Ext.create('Kio.view.Main');
                 Ext.Viewport.add(mainView);
                 Ext.Viewport.setActiveItem(mainView);
@@ -238,7 +222,7 @@ var App = new Ext.application({
     },
 
     onUpdated: function() {
-        
+
         /***************************************************************************************
          *                                                                                     *
          *  on app update reload grounds from salesforce                                       *
@@ -250,7 +234,7 @@ var App = new Ext.application({
             var grounds_model = Ext.create('Kio.model.Ground');
             var n = grounds_model.saveGrounds(JSON.parse(success_response));
 
-            // console.log('got ' + success_response.length + 'grounds from sf')                                                                               
+            // console.log('got ' + success_response.length + 'grounds from sf')
             console.log('- saved ' + n + ' grounds into the local storage');
 
         }, function(error_response){
@@ -258,7 +242,7 @@ var App = new Ext.application({
             console.log('- error getting grounds');
             console.log(error_response);
         });
-    
+
 
         Ext.Msg.confirm(
             "Application Update",
@@ -269,7 +253,7 @@ var App = new Ext.application({
                 }
             }
         );
-    }    
+    }
 
     // note that functions defined here are accessible via Kio.app.<function_name>
 });

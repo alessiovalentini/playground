@@ -9,17 +9,23 @@ var getLocation = function() {
 				  ],
 		fn: function(buttonId) {
 			if(buttonId === 'kio_okLocation_button'){
-				// Checks the local storage to see if the user activated the current location before				
+				// Checks the local storage to see if the user activated the current location before
 	            var store = Ext.getStore('Config');
 	            // Config record will be always at this position inside the local storage
 	            var configRecord = store.getAt(0);
 	            configRecord.set('currentLocation', true);
 				// sync the config record in the local storage
 				store.sync();
+
+				// Initialize the main view
+				var mainView = Ext.create('Kio.view.Main');
+				Ext.Viewport.add(mainView);
+				Ext.Viewport.setActiveItem(mainView);
+
 				// Set the location
 				var geo = Ext.create('Kio.view.UpdateLocation');
 				geo.updateLocation();
 			}
-	} 
+	}
 	});
 }
