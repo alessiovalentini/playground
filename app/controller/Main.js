@@ -189,6 +189,8 @@ Ext.define('Kio.controller.Main', {
 	    	Ext.Msg.alert('Error', errors, Ext.emptyFn);
 
 		} else {
+			// Loading spinner
+
 			// change date / time format to match the one we expet in SF: "12/02/2012 12:34"
 			var pickedDate = formValues['reportDate'];
 			formValues['reportDate'] = pickedDate.getDate() + '/' + pickedDate.getMonth() + '/' + pickedDate.getFullYear() + ' ' + pickedDate.getHours() + ':' + pickedDate.getMinutes();
