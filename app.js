@@ -82,7 +82,7 @@ var App = new Ext.application({
          *                                                                                     *
          ***************************************************************************************/
 
-        this.sf = new salesforce('mobile_app','sandbox');
+        this.sf = new salesforce('web_app','sandbox');
 
         /***************************************************************************************
          *                                                                                     *
@@ -93,26 +93,26 @@ var App = new Ext.application({
         // cache this.sf in order to access it quickly
         var sf_cache = this.sf;
 
-        // *************************** COMMENT FOR WINDOWS *************************************
-        // get session_id using refresh_token | NOTE: the call is syncronous (see forcetk.refreshAccessToken())
-        this.sf.client.refreshAccessToken(function(success_response){
-            console.log('- success_token');
-            // set the new token
-            sf_cache.setAccessToken(success_response['access_token']);
+        // // *************************** COMMENT FOR WINDOWS *************************************
+        // // get session_id using refresh_token | NOTE: the call is syncronous (see forcetk.refreshAccessToken())
+        // this.sf.client.refreshAccessToken(function(success_response){
+        //     console.log('- success_token');
+        //     // set the new token
+        //     sf_cache.setAccessToken(success_response['access_token']);
 
-        },function(error_response){
-            // if error means error in the refresh_token OR no internet connection
+        // },function(error_response){
+        //     // if error means error in the refresh_token OR no internet connection
 
-            if( error_response['responseText'] && error_response['responseText'].search("cURL error 6: Couldn't resolve host") === 0 ){
-                // error: No internet connectivity
-                console.log('- no internet connectivity: working offline till connectivity is back');
-            }else{
-                // error refreshing the access_token
-                console.log('- app online but error refreshing access_token');
-            }
-            console.log(error_response);
-        });
-        // *************************** COMMENT FOR WINDOWS *************************************
+        //     if( error_response['responseText'] && error_response['responseText'].search("cURL error 6: Couldn't resolve host") === 0 ){
+        //         // error: No internet connectivity
+        //         console.log('- no internet connectivity: working offline till connectivity is back');
+        //     }else{
+        //         // error refreshing the access_token
+        //         console.log('- app online but error refreshing access_token');
+        //     }
+        //     console.log(error_response);
+        // });
+        // // *************************** COMMENT FOR WINDOWS *************************************
 
         /***************************************************************************************
          *                                                                                     *

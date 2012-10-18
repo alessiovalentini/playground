@@ -171,6 +171,9 @@ Ext.define('Kio.controller.Main', {
 		*		- if error   => simply alert error, go to home screen => the reports will be submitted later on when connection will be back *                                                                                                *
 		**************************************************************************************************************************************/
 
+		// Loading mask
+		var reportMask = new Ext.LoadMask(Ext.getBody(), {message:"Submitting report. Please wait..."}, {fullscreen : true});
+
 		// cache this
 		var mainController = this;
 
@@ -189,11 +192,8 @@ Ext.define('Kio.controller.Main', {
 	    	Ext.Msg.alert('Error', errors, Ext.emptyFn);
 
 		} else {
-			// Loading spinner - show it
-			var mask = formPanel.getMasked();
-            mask.setIndicator(true);
-            mask.setHidden(false);
-            formPanel.setMasked(mask);
+			// showing loading mask
+   			reportMask.show();
 
 			// change date / time format to match the one we expet in SF: "12/02/2012 12:34"
 			var pickedDate = formValues['reportDate'];
@@ -229,11 +229,8 @@ Ext.define('Kio.controller.Main', {
 			    	reportsStore.removeAll();
 			    	reportsStore.sync();
 
-					// Loading spinner - hide it
-					var mask = formPanel.getMasked();
-		            mask.setIndicator(true);
-		            mask.setHidden(true);
-		            formPanel.setMasked(mask);
+					// hidding loading mask
+		   			reportMask.hide();
 
 			    	// show alert to the user
 			    	// Note that the MessageBox is asynchronous. For this reason, you must use a callback function
