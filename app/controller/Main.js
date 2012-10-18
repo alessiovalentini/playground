@@ -189,8 +189,11 @@ Ext.define('Kio.controller.Main', {
 	    	Ext.Msg.alert('Error', errors, Ext.emptyFn);
 
 		} else {
-			// Loading spinner
-			formPanel.mask(); // shows the mask
+			// Loading spinner - show it
+			var mask = formPanel.getMasked();
+            mask.setIndicator(true);
+            mask.setHidden(false);
+            formPanel.setMasked(mask);
 
 			// change date / time format to match the one we expet in SF: "12/02/2012 12:34"
 			var pickedDate = formValues['reportDate'];
@@ -226,19 +229,22 @@ Ext.define('Kio.controller.Main', {
 			    	reportsStore.removeAll();
 			    	reportsStore.sync();
 
+					// Loading spinner - hide it
+					var mask = formPanel.getMasked();
+		            mask.setIndicator(true);
+		            mask.setHidden(true);
+		            formPanel.setMasked(mask);
+
 			    	// show alert to the user
 			    	// Note that the MessageBox is asynchronous. For this reason, you must use a callback function
 			    	Ext.Msg.alert('Thanks!', 'Your report has been submitted', function(){
 			    		// clear form
 				    	formPanel.reset();
 
-						// Loading spinner
-						formPanel.unmask(); // hides the mask
-
 						// go back to main tab screen
 						var mainPanel = mainController.getMainTabPanel()	// get main tab panel
 			        	mainPanel.setActiveItem(0);		      				// set that the active item is the first (home)
-			        	Ext.Viewport.setActiveItem(mainPanel);				// set the active item for the viewport => is the tab main panel with home panel selected
+			         	Ext.Viewport.setActiveItem(mainPanel);				// set the active item for the viewport => is the tab main panel with home panel selected
 
 				    	console.log('- ' + reports_batch['reportList'].length + ' report(s) submitted successfully to salesforce');
 				    	console.log(reports_batch);
@@ -251,8 +257,14 @@ Ext.define('Kio.controller.Main', {
 			    }
 
 			}, function(error_response){
-				// error submitting reports
 
+				// Loading spinner - hide it
+				var mask = formPanel.getMasked();
+	            mask.setIndicator(true);
+	            mask.setHidden(true);
+	            formPanel.setMasked(mask);
+
+				// error submitting reports
 				if( error_response['responseText'].search("cURL error 6: Couldn't resolve host") === 0 ){
 			    	// error: No internet connectivity
 
@@ -263,9 +275,6 @@ Ext.define('Kio.controller.Main', {
 			    	Ext.Msg.alert('Thanks!', 'Your report will be submitted as soon as the Internet connectivity will be available', function(){
 				    	// clear form
 						formPanel.reset();
-
-						// Loading spinner
-						formPanel.unmask(); // hides the mask
 
 						// go back to main tab screen
 						var mainPanel = mainController.getMainTabPanel()	// get main tab panel

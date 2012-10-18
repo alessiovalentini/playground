@@ -9,8 +9,7 @@ Ext.define('Kio.view.MakeReport', {
 	    masked: {
 	       xtype: 'loadmask',
 	       message: 'Submitting report. Please wait..',
-	       hidden: true,
-	       indicator: true
+	       hidden: true
 	    },
 
 		items: [
