@@ -18,7 +18,7 @@ function salesforce(app_type, env){
 		// this token last the time set up in sf under timeout options
 		// if no one is calling the api for that amount of time the token must be refreshed using the refresh_token
 		// in this implementation the token is getted every time at the startup of the app using the refresh token and saved in memory
-		this.access_token  = "00DJ00000007aDx!AQIAQLtP_SkMF5y3Nq6PJFx4XrFAUhgzrd6UgvQavqagv1ujFqeKAAnCCRmgEoJtbWQD4WORBxBE1nbMWgwnjKX8MJGltcpp";
+		this.access_token  = "00DJ00000007aDx!AQIAQP0mKcw_KWviHA3DRLkq9Wu1gqSiOetEc9av3.Y0blt9vw8LVFlZLEM8m4j1xbUd2_TGmSb_DYYEnTIdfQae.kQ.cqUn";
 		// long term token
 		this.refresh_token = "5Aep861H8tnG68exDFPLJiMbW7gyzDIvQ1zY7LtUCh9ys4lGgxc7gNby2x5nEnzcvamhnkv3MDHvw==";
 		this.instance_url  = "https://cs10.salesforce.com";

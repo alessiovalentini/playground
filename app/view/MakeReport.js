@@ -9,6 +9,7 @@ Ext.define('Kio.view.MakeReport', {
 	    masked: {
 	       xtype: 'loadmask',
 	       message: 'A message..',
+	       hidden: false,
 	       indicator: true
 	    },
 
