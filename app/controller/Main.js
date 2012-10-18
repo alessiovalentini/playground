@@ -1,13 +1,6 @@
 Ext.define('Kio.controller.Main', {
 	extend: 'Ext.app.Controller',
 	
-	// connection checker (under sdk/src/ux/util)
-	requires: [
-        'Ext.ux.util.OnlineManager',
-        'Ext.util.Geolocation'
-    ],
-    // connection checker
-
 	config: {
 		refs: {
 			mainTabPanel: 'kio_main_tabPanel',				// the connection manager is attached to the main panel
@@ -189,7 +182,7 @@ Ext.define('Kio.controller.Main', {
 		var configModel = Ext.create('Kio.model.Report');
 		var errors = configModel.validateReport(formValues);
 
-		if(errors != null){
+		if(errors != null ){
 			// Show errors
 			// alert(errors);			
 	    	// Note that the MessageBox is asynchronous. For this reason, you must use a callback function

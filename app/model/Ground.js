@@ -28,10 +28,9 @@ Ext.define('Kio.model.Ground', {
         grounds_store.removeAll();
         grounds_store.sync();
         // write all from sf
-        var grounds = new Array();          
-        grounds.push(ground);
+        var grounds = new Array();      
         for(var i in grounds_list){
-            
+         
             // recordId, groundName
             var ground = {
 
@@ -40,7 +39,7 @@ Ext.define('Kio.model.Ground', {
 
             }            
             grounds.push(ground);
-        }
+        }        
         // one single dml
         grounds_store.add(grounds);
         grounds_store.sync();
