@@ -1,6 +1,6 @@
 Ext.define('Kio.controller.Main', {
 	extend: 'Ext.app.Controller',
-	
+
 	config: {
 		refs: {
 			mainTabPanel: 'kio_main_tabPanel',				// the connection manager is attached to the main panel
@@ -26,7 +26,7 @@ Ext.define('Kio.controller.Main', {
 			// connection checker
 			mainTabPanel: {
 				// the connection manager is attached at the initialization of the main panel
-				initialize: 'checkConnection'     
+				initialize: 'checkConnection'
 			},
 			// connection checker
 
@@ -49,7 +49,7 @@ Ext.define('Kio.controller.Main', {
 				tap: 'showMakeReport'
 			},
 			makeReportHomeButton:{
-				// tap: 'showReport'	
+				// tap: 'showReport'
 				tap: 'showMakeReport'
 			},
 			cancelReportButton: {
@@ -59,7 +59,7 @@ Ext.define('Kio.controller.Main', {
 				tap: 'submitReport'
 			},
 			saveSettingButton: {
-				tap: 'saveSetting'	
+				tap: 'saveSetting'
 			},
 			settingTabBarButton: {
 				tap: 'loadSettingFormValues'
@@ -72,7 +72,7 @@ Ext.define('Kio.controller.Main', {
 			}
 		}
 	},
-	
+
 	showNewsDetail: function(list, record){
 
 		// If it was created before, just show the panel otherwise it creates it
@@ -105,33 +105,33 @@ Ext.define('Kio.controller.Main', {
 			Ext.Viewport.add(makeReportPanel);
 		}
 
-        
-		/******************************************************************************************************* 
+
+		/*******************************************************************************************************
 		*                                                                                                      *
 		*  populate the form values with the available values from the user Config in the local storage        *
 		*                                                                                                      *
 		********************************************************************************************************/
-		
+
 		var configStore = Ext.getStore('Config');
 		var settings = configStore.getAt(0);
 
-        
-		/******************************************************************************************************* 
+
+		/*******************************************************************************************************
 		*                                                                                                      *
 		*  check if the user allows the app to get the current location. If yes, the grounds                   *
 		*  must be oredered by location                                                                        *
 		*                                                                                                      *
 		********************************************************************************************************/
-		
+
 		// Get the status of currentLocation
-        var currentLocation = configStore.getAt(0)['_data']['currentLocation'];   
+        var currentLocation = configStore.getAt(0)['_data']['currentLocation'];
 
         if(currentLocation === true){
             // set the new location of the user
             var geo = Ext.create('Kio.view.UpdateLocation');
             geo.updateLocation();
             // **** REORDER THE GROUNDS ***
-        }         
+        }
 
 		// **** IMPROVE *** get the name of the ground having the regularGround id, in order to prepopulate the make report view with the name of the ground
 		var groundStore = Ext.getStore('Ground');
@@ -156,12 +156,12 @@ Ext.define('Kio.controller.Main', {
 		// finally show the new view
 		makeReportPanel.show();
 		Ext.Viewport.setActiveItem(makeReportPanel);
-		
-		//}	
+
+		//}
 	},
 	submitReport: function(){
-		
-		/************************************************************************************************************************************* 
+
+		/*************************************************************************************************************************************
 		*                                                                                    							                     *
 		*	Submit the report to SF: 																										 *
 		*	- save locally report 																		   									 *
@@ -173,7 +173,7 @@ Ext.define('Kio.controller.Main', {
 
 		// cache this
 		var mainController = this;
-		
+
 		// get form values
 		var formPanel = this.getMakeReportPanel();
 		var formValues = formPanel.getValues();
@@ -184,11 +184,11 @@ Ext.define('Kio.controller.Main', {
 
 		if(errors != null ){
 			// Show errors
-			// alert(errors);			
+			// alert(errors);
 	    	// Note that the MessageBox is asynchronous. For this reason, you must use a callback function
 	    	Ext.Msg.alert('Error', errors, Ext.emptyFn);
 
-		} else {			
+		} else {
 			// change date / time format to match the one we expet in SF: "12/02/2012 12:34"
 			var pickedDate = formValues['reportDate'];
 			formValues['reportDate'] = pickedDate.getDate() + '/' + pickedDate.getMonth() + '/' + pickedDate.getFullYear() + ' ' + pickedDate.getHours() + ':' + pickedDate.getMinutes();
@@ -196,14 +196,14 @@ Ext.define('Kio.controller.Main', {
 			// groundId must be the actual id and not the label => fix this
 			var groundStore = Ext.getStore('Ground');
 			var selectedGroundRecord = groundStore.findRecord('groundName',formValues['groundId']);	// *** IMPROVE *** (we can get directly id from the form)
-			
-			// user selected a ground 
+
+			// user selected a ground
 			formValues['groundId'] = selectedGroundRecord.data['recordId'];	 // set the recordId (sf id) instead of the groundName *** IMPROVE *** related to above
 
 			// save the new report into local storage
 
 			// generating an id for the local storage runtime (using the # of millisecond from year 1970)
-			formValues['recordId'] = Date.now();	
+			formValues['recordId'] = Date.now();
 			var reportsStore = Ext.getStore('Report');
 			// save the raw form not stringyfied
 			reportsStore.add( formValues );
@@ -218,7 +218,7 @@ Ext.define('Kio.controller.Main', {
 			Kio.app.sf.newReport( reports_batch , function(success_response){
 				// success => remove sent reports from local storage and alert user
 
-				if( success_response == 'Success' ){			    	
+				if( success_response == 'Success' ){
 			    	// delete reports from local storage
 			    	reportsStore.removeAll();
 			    	reportsStore.sync();
@@ -237,7 +237,7 @@ Ext.define('Kio.controller.Main', {
 				    	console.log('- ' + reports_batch['reportList'].length + ' report(s) submitted successfully to salesforce');
 				    	console.log(reports_batch);
 			    	});
-			    
+
 			    }else{
 			    	// error =>
 			    	console.log('- unmanaged error:');
@@ -248,13 +248,13 @@ Ext.define('Kio.controller.Main', {
 				// error submitting reports
 
 				if( error_response['responseText'].search("cURL error 6: Couldn't resolve host") === 0 ){
-			    	// error: No internet connectivity			    	
+			    	// error: No internet connectivity
 
 			    	// show message to the user
 			    	// alert('Thanks! Your report will be submitted as soon as the Internet connectivity will be available');
 			    	// show alert to the user
 			    	// Note that the MessageBox is asynchronous. For this reason, you must use a callback function
-			    	Ext.Msg.alert('Thanks!', 'Your report will be submitted as soon as the Internet connectivity will be available', function(){	    		
+			    	Ext.Msg.alert('Thanks!', 'Your report will be submitted as soon as the Internet connectivity will be available', function(){
 				    	// clear form
 						formPanel.reset();
 
@@ -270,18 +270,18 @@ Ext.define('Kio.controller.Main', {
 			    	// any other possible error?? wrong token?!!? *** IMPROVE ***
 			    }
 			});
-		
+
 		}
 	},
 	backHomeFromTheSameTabPanel: function(){
 		// Getters and setter are created once you set a variable in refs
-		
+
 		// NB staying on the same tabPanel is not necessary to the activeItem in the viewport but just the activeItem for the tabPanel
 		var mainTab = this.getMainTabPanel();
-		mainTab.setActiveItem(0);		
+		mainTab.setActiveItem(0);
 	},
 	backHomeFromAnotherPanel: function(){
-		
+
 		// Deselect items from the news list
     	var newsListPanel = this.getNewsListPanel();
 		if(newsListPanel != undefined){
@@ -299,16 +299,16 @@ Ext.define('Kio.controller.Main', {
 		var configModel = Ext.create('Kio.model.Config');
 		var errors = configModel.validateConfig(formValues);
 
-		if(errors != null){			
+		if(errors != null){
 			// Show errors
-			// alert(errors);			
+			// alert(errors);
 	    	// Note that the MessageBox is asynchronous. For this reason, you must use a callback function
 	    	Ext.Msg.alert('Error', errors, Ext.emptyFn);
 		} else {
 			// load config load storage
 			var configStore = Ext.getStore('Config');
 			var configValues = configStore.getAt(0);
-		
+
 			// save in the config local storage the form values
 			configValues.set('address',formValues['address']);
 			configValues.set('email',formValues['email']);
@@ -343,40 +343,36 @@ Ext.define('Kio.controller.Main', {
         var store = Ext.getStore('Config');
         var regularGroundLocalStorageValue = store.getAt(0).get('regularGround');
         if(regularGroundLocalStorageValue != null){
-			regularGround.setPlaceHolder(regularGroundLocalStorageValue);        	
+			regularGround.setPlaceHolder(regularGroundLocalStorageValue);
         }
 	},
 	declineTermsAndConditions: function() {
 		// Show errors
-		// alert(errors);			
+		// alert(errors);
     	// Note that the MessageBox is asynchronous. For this reason, you must use a callback function
     	Ext.Msg.alert('Error', 'It is not possible to use the application without accepting the Terms and Conditions', Ext.emptyFn);
 	},
 	confirmTermsAndConditions: function() {
-		getLocation();		
-		// Initialize the main view
-		var mainView = Ext.create('Kio.view.Main');
-		Ext.Viewport.add(mainView);
-		Ext.Viewport.setActiveItem(mainView);
+		getLocation();
 	},
 	// connection checker => perform actions on app online or offline
 	checkConnection: function(){
 
 		// set the online.php path
-		OnlineManager.setUrl('resources/online/online.php');  	
+		OnlineManager.setUrl('resources/online/online.php');
 
 		// when connection event is fired
         OnlineManager.on({
-            
+
             // mode will be true when app online an false when offline
             'onlinechange': function(mode) {
-                
+
                 if (mode) {
-					
+
 					/********************************************************************************************************************
-	                 *                                                                                     
-	                 *  app back online                                                              
-	                 *                                                                                     
+	                 *
+	                 *  app back online
+	                 *
 	                 *	- if there are reports saved in the local storage, batch them up, send them. on success remove them from local storage
 	                 *	- get news ? ... maybe not necessary having the pull to refresh *** IMPROVE ***
 	                 *
@@ -426,14 +422,14 @@ Ext.define('Kio.controller.Main', {
 					}
 
                 } else {
-                	
+
                 	/********************************************************************************************************************
 	                 *                                                                                     								*
 	                 *  app offline => show banner that alerts the user                                                              	*
 	                 *   																												*
 	                 ********************************************************************************************************************/
-	                 
-                    console.log('- connection status: app offline');		
+
+                    console.log('- connection status: app offline');
 			    	// Note that the MessageBox is asynchronous. For this reason, you must use a callback function
 			    	Ext.Msg.alert('Warning', 'connection status: app offline', Ext.emptyFn);
                 }
