@@ -193,7 +193,8 @@ Ext.define('Kio.controller.Main', {
 
 		} else {
 			// showing loading mask
-   			reportMask.show();
+   			if( Ext.device.Connection.isOnline() )
+   				reportMask.show();
 
 			// change date / time format to match the one we expet in SF: "12/02/2012 12:34"
 			var pickedDate = formValues['reportDate'];
@@ -229,7 +230,7 @@ Ext.define('Kio.controller.Main', {
 			    	reportsStore.removeAll();
 			    	reportsStore.sync();
 
-					// hidding loading mask
+					// hiding loading mask
 		   			reportMask.hide();
 
 			    	// show alert to the user
@@ -256,34 +257,25 @@ Ext.define('Kio.controller.Main', {
 			}, function(error_response){
 
 				// Loading spinner - hide it
-				var mask = formPanel.getMasked();
-	            mask.setIndicator(true);
-	            mask.setHidden(true);
-	            formPanel.setMasked(mask);
+				// var mask = formPanel.getMasked();
+	   //          mask.setIndicator(true);
+	   //          mask.setHidden(true);
+	   //          formPanel.setMasked(mask);
 
-				// error submitting reports
-				if( error_response['responseText'].search("cURL error 6: Couldn't resolve host") === 0 ){
-			    	// error: No internet connectivity
+		    	// show message to the user
+		    	// Note that the MessageBox is asynchronous. For this reason, you must use a callback function
+		    	Ext.Msg.alert('Thanks!', 'Your report will be submitted as soon as the Internet connectivity will be available', function(){
+			    	// clear form
+					formPanel.reset();
 
-			    	// show message to the user
-			    	// alert('Thanks! Your report will be submitted as soon as the Internet connectivity will be available');
-			    	// show alert to the user
-			    	// Note that the MessageBox is asynchronous. For this reason, you must use a callback function
-			    	Ext.Msg.alert('Thanks!', 'Your report will be submitted as soon as the Internet connectivity will be available', function(){
-				    	// clear form
-						formPanel.reset();
+					// go back to main tab screen
+					var mainPanel = mainController.getMainTabPanel()	// get main tab panel
+		        	mainPanel.setActiveItem(0);		      				// set that the active item is the first (home)
+		        	Ext.Viewport.setActiveItem(mainPanel);				// set the active item for the viewport => is the tab main panel with home panel selected
 
-						// go back to main tab screen
-						var mainPanel = mainController.getMainTabPanel()	// get main tab panel
-			        	mainPanel.setActiveItem(0);		      				// set that the active item is the first (home)
-			        	Ext.Viewport.setActiveItem(mainPanel);				// set the active item for the viewport => is the tab main panel with home panel selected
+			    	console.log('- no internet connectivity: report saved locally');
+		    	});
 
-				    	console.log('- no internet connectivity: report saved locally');
-			    	});
-
-			    }else{
-			    	// any other possible error?? wrong token?!!? *** IMPROVE ***
-			    }
 			});
 
 		}
@@ -373,84 +365,95 @@ Ext.define('Kio.controller.Main', {
 	// connection checker => perform actions on app online or offline
 	checkConnection: function(){
 
-		// set the online.php path
-		OnlineManager.setUrl('resources/online/online.php');
+		// executed just first time
+		var oldStatus = false;	// app initially sleeping
 
-		// when connection event is fired
-        OnlineManager.on({
+		// keep checking connection status
+		setInterval(function(){
 
-            // mode will be true when app online an false when offline
-            'onlinechange': function(mode) {
+			var currentStatus = Ext.device.Connection.isOnline();
+			// console.log('current: ' + currentStatus + ' - old: ' + Kio.app.oldStatus);
 
-                if (mode) {
+			if(currentStatus === true && oldStatus === true){
 
-					/********************************************************************************************************************
-	                 *
-	                 *  app back online
-	                 *
-	                 *	- if there are reports saved in the local storage, batch them up, send them. on success remove them from local storage
-	                 *	- get news ? ... maybe not necessary having the pull to refresh *** IMPROVE ***
-	                 *
-	                 ********************************************************************************************************************/
+				oldStatus = Ext.device.Connection.isOnline();	// set the old status for the next iteration
+			}
+			else if(currentStatus === false && oldStatus === false){
 
-					// get report store
-					var reportsStore = Ext.getStore('Report');
+				oldStatus = Ext.device.Connection.isOnline();	// set the old status for the next iteration
+			}
+			else if(currentStatus === true && oldStatus === false){
 
-					if( reportsStore.getCount() > 0 ){
-						// reports have been submitted when the app was offline. batch them up and send them to salesforce
+				/********************************************************************************************************************
+                 *
+                 *  app back online
+                 *
+                 *	- if there are reports saved in the local storage, batch them up, send them. on success remove them from local storage
+                 *	- get news ? ... maybe not necessary having the pull to refresh *** IMPROVE ***
+                 *
+                 ********************************************************************************************************************/
 
-						var reports_model = Ext.create('Kio.model.Report');
-						// get the batch of reports from the local storage, ready to be sent to salesforce
-						var reports_batch = reports_model.getReportsBatch();
+				// get report store
+				var reportsStore = Ext.getStore('Report');
 
-						// send batch of reports to sf
-						Kio.app.sf.newReport( reports_batch , function(success_response){
-							// success => remove sent reports from local storage
+				if( reportsStore.getCount() > 0 ){
+					// reports have been submitted when the app was offline. batch them up and send them to salesforce
 
-							if( success_response == 'Success' ){
-						    	console.log('- connection status: ' + reports_batch['reportList'].length + ' report(s) submitted successfully to salesforce after app back online!!!');
-						    	console.log(reports_batch);
-						    	// delete reports from local storage
-						    	reportsStore.removeAll();
-						    	reportsStore.sync();
+					var reports_model = Ext.create('Kio.model.Report');
+					// get the batch of reports from the local storage, ready to be sent to salesforce
+					var reports_batch = reports_model.getReportsBatch();
 
-						    }else{
-						    	// error =>
-						    	console.log('- connection status: ERROR (success/else branch) after app back online:');
-						    	console.log(success_response);
-						    }
+					// send batch of reports to sf
+					Kio.app.sf.newReport( reports_batch , function(success_response){
+						// success => remove sent reports from local storage
 
-						}, function(error_response){
-							// error submitting reports
+						if( success_response == 'Success' ){
+					    	console.log('- connection status: ' + reports_batch['reportList'].length + ' report(s) submitted successfully to salesforce after app back online!!!');
+					    	console.log(reports_batch);
+					    	// delete reports from local storage
+					    	reportsStore.removeAll();
+					    	reportsStore.sync();
 
-							if( error_response['responseText'].search("cURL error 6: Couldn't resolve host") === 0 ){
-						    	// error: No internet connectivity (the responseText contains that string) => saving locally the report
-						    	console.log('- connection status: still no internet connectivity after app back online');
-						    }else{
-						    	// any other possible error?? wrong token?!!? *** IMPROVE ***
-						    }
-						});
+					    }else{
+					    	// error =>
+					    	console.log('- connection status: ERROR (success/else branch) after app back online:');
+					    	console.log(success_response);
+					    }
 
-					}else{
-						// user did not submit any report while app was offline
-						console.log('- connection status: app online / user did not submit any report while app was offline');
-					}
+					}, function(error_response){
+						// error submitting reports
 
-                } else {
+						if( error_response['responseText'].search("cURL error 6: Couldn't resolve host") === 0 ){
+					    	// error: No internet connectivity (the responseText contains that string) => saving locally the report
+					    	console.log('- connection status: still no internet connectivity after app back online');
+					    }else{
+					    	// any other possible error?? wrong token?!!? *** IMPROVE ***
+					    }
+					});
 
-                	/********************************************************************************************************************
-	                 *                                                                                     								*
-	                 *  app offline => show banner that alerts the user                                                              	*
-	                 *   																												*
-	                 ********************************************************************************************************************/
+				}else{
+					// user did not submit any report while app was offline
+					console.log('- connection status: app online / user did not submit any report while app was offline');
+				}
 
-                    console.log('- connection status: app offline');
-			    	// Note that the MessageBox is asynchronous. For this reason, you must use a callback function
-			    	Ext.Msg.alert('Warning', 'connection status: app offline', Ext.emptyFn);
-                }
-            }
-        });
+				oldStatus = Ext.device.Connection.isOnline();	// set the old status for the next iteration
 
-        OnlineManager.start();
+			}else if(currentStatus === false && oldStatus === true){
+
+			    /********************************************************************************************************************
+                 *                                                                                     								*
+                 *  app offline => show banner that alerts the user                                                              	*
+                 *   																												*
+                 ********************************************************************************************************************/
+
+		    	// Note that the MessageBox is asynchronous. For this reason, you must use a callback function
+		    	//Ext.Msg.alert('Warning', 'connection status: app offline', Ext.emptyFn);
+
+                console.log('- connection status: app offline');
+				oldStatus = Ext.device.Connection.isOnline();	// set the old status for the next iteration
+			}
+
+		}, 2000);	// interval time
+
 	}
 });
