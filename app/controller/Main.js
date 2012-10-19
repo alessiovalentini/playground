@@ -193,7 +193,8 @@ Ext.define('Kio.controller.Main', {
 
 		} else {
 			// showing loading mask
-   			reportMask.show();
+   			if( Ext.device.Connection.isOnline() )
+   				reportMask.show();
 
 			// change date / time format to match the one we expet in SF: "12/02/2012 12:34"
 			var pickedDate = formValues['reportDate'];
@@ -261,32 +262,20 @@ Ext.define('Kio.controller.Main', {
 	   //          mask.setHidden(true);
 	   //          formPanel.setMasked(mask);
 
-	   			// hiding loading mask
-	   			reportMask.hide();
+		    	// show message to the user
+		    	// Note that the MessageBox is asynchronous. For this reason, you must use a callback function
+		    	Ext.Msg.alert('Thanks!', 'Your report will be submitted as soon as the Internet connectivity will be available', function(){
+			    	// clear form
+					formPanel.reset();
 
-				// error submitting reports
-				if( error_response['responseText'].search("cURL error 6: Couldn't resolve host") === 0 ){
-			    	// error: No internet connectivity
+					// go back to main tab screen
+					var mainPanel = mainController.getMainTabPanel()	// get main tab panel
+		        	mainPanel.setActiveItem(0);		      				// set that the active item is the first (home)
+		        	Ext.Viewport.setActiveItem(mainPanel);				// set the active item for the viewport => is the tab main panel with home panel selected
 
-			    	// show message to the user
-			    	// alert('Thanks! Your report will be submitted as soon as the Internet connectivity will be available');
-			    	// show alert to the user
-			    	// Note that the MessageBox is asynchronous. For this reason, you must use a callback function
-			    	Ext.Msg.alert('Thanks!', 'Your report will be submitted as soon as the Internet connectivity will be available', function(){
-				    	// clear form
-						formPanel.reset();
+			    	console.log('- no internet connectivity: report saved locally');
+		    	});
 
-						// go back to main tab screen
-						var mainPanel = mainController.getMainTabPanel()	// get main tab panel
-			        	mainPanel.setActiveItem(0);		      				// set that the active item is the first (home)
-			        	Ext.Viewport.setActiveItem(mainPanel);				// set the active item for the viewport => is the tab main panel with home panel selected
-
-				    	console.log('- no internet connectivity: report saved locally');
-			    	});
-
-			    }else{
-			    	// any other possible error?? wrong token?!!? *** IMPROVE ***
-			    }
 			});
 
 		}
