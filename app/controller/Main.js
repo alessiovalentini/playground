@@ -447,7 +447,7 @@ Ext.define('Kio.controller.Main', {
                  ********************************************************************************************************************/
 
 		    	// Note that the MessageBox is asynchronous. For this reason, you must use a callback function
-		    	Ext.Msg.alert('Warning', 'connection status: app offline', Ext.emptyFn);
+		    	//Ext.Msg.alert('Warning', 'connection status: app offline', Ext.emptyFn);
 
                 console.log('- connection status: app offline');
 				oldStatus = Ext.device.Connection.isOnline();	// set the old status for the next iteration
