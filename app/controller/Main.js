@@ -193,7 +193,8 @@ Ext.define('Kio.controller.Main', {
 
 		} else {
 			// showing loading mask
-   			reportMask.show();
+   			if( Ext.device.Connection.isOnline() )
+   				reportMask.show();
 
 			// change date / time format to match the one we expet in SF: "12/02/2012 12:34"
 			var pickedDate = formValues['reportDate'];
@@ -255,8 +256,11 @@ Ext.define('Kio.controller.Main', {
 
 			}, function(error_response){
 
-	   			// hiding loading mask
-		   		reportMask.hide();
+				// Loading spinner - hide it
+				// var mask = formPanel.getMasked();
+	   //          mask.setIndicator(true);
+	   //          mask.setHidden(true);
+	   //          formPanel.setMasked(mask);
 
 		    	// show message to the user
 		    	// Note that the MessageBox is asynchronous. For this reason, you must use a callback function
