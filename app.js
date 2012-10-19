@@ -50,29 +50,8 @@ var App = new Ext.application({
 
     launch: function() {    // at application startup:
 
-        // if (Ext.device.Connection.isOnline()) {
-        //     Ext.Msg.alert('You are currently connected via ' + Ext.device.Connection.getType());
-        // } else {
-        //     Ext.Msg.alert('You are not currently connected');
-        // }
-
-        // this.connectivity = Ext.device.Connection;
-        // console.log(this.connectivity);
-        // console.log(this.connectivity.isOnline());
-
-        // the EVENT is working only with sencha packager
-        // Ext.device.Connection.on({
-        //     onlinechange: function(online, type){    // action to perform when the internet conncetion is changing
-
-                //         console.log('online? ' + online);
-                //         alert('online? ' + online);
-                // },
-        // });
-
         // Destroy the #appLoadingIndicator element
         // Ext.fly('appLoadingIndicator').destroy();
-
-
 
         /***************************************************************************************
          *                                                                                     *
@@ -82,7 +61,7 @@ var App = new Ext.application({
          *                                                                                     *
          ***************************************************************************************/
 
-        this.sf = new salesforce('mobile_app','sandbox');
+        this.sf = new salesforce('web_app','sandbox');
 
         /***************************************************************************************
          *                                                                                     *
