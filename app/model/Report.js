@@ -1,6 +1,6 @@
 Ext.define('Kio.model.Report', {
 	extend: 'Ext.data.Model',
-	
+
 	config: {
 		identifier: 'uuid',
         fields: ['id','recordId', 'groundId', 'reportDate', 'description','name','phone','email','address'],
@@ -35,12 +35,12 @@ Ext.define('Kio.model.Report', {
 		console.log(sf_reports_batch);
 
     	return sf_reports_batch;
-    },    
+    },
 
     validateReport: function(formValues){
-		
+
 		if(formValues != undefined){
-			
+
 			var configModel = Ext.create('Kio.model.Report', {
 				groundId: formValues['groundId'],
 				reportDate: formValues['reportDate'],
@@ -48,7 +48,7 @@ Ext.define('Kio.model.Report', {
 			    email: formValues['email'],
 			    phone: formValues['phone']
 			});
-			
+
 			// run some validation on the model we just created
 			var errors = configModel.validate();
 			var result = null;
