@@ -1,18 +1,18 @@
 Ext.define('Kio.view.MakeReport', {
 	extend: 'Ext.form.Panel',
 	xtype: 'kio_makeReport_navigationView',
-	
+
 	config: {
 		title: 'Report',
 		styleHtmlContent: true,
 		scrollable: 'vertical',
-			  
+
 		items: [
 			{
 				xtype: 'titlebar',
 				title: 'Report',
 				docked: 'top',
-				
+
 				items: [
 					{
 						xtype: 'button',
@@ -35,18 +35,18 @@ Ext.define('Kio.view.MakeReport', {
 				styleHtmlContent: true,
 				html: [
 					'<h2><b>Incident details</b></h2>'
-				]								
+				]
 			},
 			// form fields - name must match the model in order to have the json object ready to be sent / saved straight away
-			{					
+			{
                 xtype: 'selectfield',
 				placeHolder: 'Where did it happen?',
 				store: 'Ground',
-				id: 'kio_ground_selectfield',				
+				id: 'kio_ground_selectfield',
 				name: 'groundId',
 		        valueField: 'groundName',	// sf id to send in the report *** IMPROVE ***
 		        displayField: 'groundName', // sf name to display to the user
-				styleHtmlContent: true            		
+				styleHtmlContent: true
 			},
 			{
 	            xtype: 'datetimepickerfield',
@@ -64,42 +64,42 @@ Ext.define('Kio.view.MakeReport', {
 	                slotOrder: ['day', 'month', 'year','hour','minute']
 	         	}
 	        },
-			{					
+			{
                 xtype: 'textareafield',
                 id: 'kio_description_textareafield',
                 name: 'description',
 				placeHolder: 'Describe what happened',
-				styleHtmlContent: true            		
+				styleHtmlContent: true
 			},
 			{
 				xtype: 'panel',
 				styleHtmlContent: true,
 				html: [
 					'<h2><b>Your details</b></h2>'
-				]								
+				]
 			},
-			{				
+			{
 	            xtype: 'textfield',
 	            id: 'kio_name_textfield',
 	            name: 'name',
     			placeHolder: 'Name',
 				styleHtmlContent: true
 			},
-			{				
+			{
 	            xtype: 'textfield',
 	            id: 'kio_contactPhoneNumber_textfield',
 	            name: 'phone',
     			placeHolder: 'Contact phone number',
 				styleHtmlContent: true
 			},
-			{				
+			{
 	            xtype: 'emailfield',
 	            id: 'kio_email_emailfield',
 	            name: 'email',
     			placeHolder: 'Email address',
 				styleHtmlContent: true
 			},
-			{				
+			{
 	            xtype: 'textfield',
 	            id: 'kio_homeAddress_textfield',
 	            name: 'address',

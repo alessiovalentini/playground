@@ -10,7 +10,7 @@ Ext.define("Kio.view.Main", {
         'Kio.view.About',
         'Kio.view.Setting'
     ],
-	
+
     config: {
 
         tabBar: {
